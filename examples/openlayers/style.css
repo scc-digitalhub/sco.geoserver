@@ -60,3 +60,14 @@ div.tab button.active {
     height:550px;
     padding:10px;
 }
+
+#type_desc_proc_wps{
+    padding-top: 15px;
+    padding-bottom: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.exec{
+    height: 680px;
+}

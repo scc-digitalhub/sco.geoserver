@@ -8,6 +8,7 @@
         <script type="text/javascript" src="config.js" ></script>
         <script type="text/javascript" src="script_wso2.js" ></script>
         <script type="text/javascript" src="prototype.js" ></script>
+        <title>WSO2 Examples - OpenLayers</title>
   </head>
   <body>
 
@@ -49,6 +50,24 @@
                                                 <input type="checkbox" id="vector_kml_wms" onchange="enableAuthToken('vector_kml_wms');">WSO2
                                         </label>
                                         <div id="map['vector_kml_wms']" tabindex="0" class="mapContainer"></div>
+                                </div>
+                                <div class="noProblem">
+                                        <p>URL: /geoserver/wps  DescribeProcess gs:Aggregate</p> 
+                                        <label>
+                                                <input type="checkbox" id="desc_proc_wps" onchange="describeProcessWps('desc_proc_wps');">WSO2
+                                        </label>
+                                        <div id="type_desc_proc_wps" tabindex="0"></div> 
+                                        <div id="tbl_desc_proc_wps" class="mapContainer"></div>                                       
+                                </div>
+                                <div class="noProblem mapContainer exec">
+                                        <p>URL: /geoserver/wps  Execute Operation (Aggregation)
+                                        <br/><br/>
+                                        Counts the total number of states, sum all the number of persons, computes the average number of persons per state and give the maximum and minimum number of persons in a state </p>
+                                        <label>
+                                                <input type="checkbox" id="wps_execute" onchange="executeWps('wps_execute');">WSO2
+                                        </label>
+                                        <br/><br/>
+                                        <div id="tbl_wps_execute" tabindex="0"></div>
                                 </div>
                 </div> 
                 

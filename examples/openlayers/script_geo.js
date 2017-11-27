@@ -2,7 +2,130 @@ function enableAuthToken (name){
   var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
   var layer = (chkbWso2 ? wso2_layers[name] : layers[name]);
   map[name].getLayers().setAt(1, layer);
-}     
+} 
+
+function describeProcessWps (name){
+
+    var xmlHttp = new XMLHttpRequest();
+    var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
+    var url=(chkbWso2 ? wpsUrl : geoserverUrl+'/wps');
+    xmlHttp.open("GET", url+'?service=WPS&version=1.0.0&request=DescribeProcess&identifier=gs:Aggregate');
+    if(chkbWso2){
+      xmlHttp.setRequestHeader('Authorization', auth_token_wso2);
+    }
+    xmlHttp.onload = function (oEvent) {
+      var result = xmlHttp.response;
+      parser = new DOMParser();
+      xmlDoc = parser.parseFromString(result, "text/xml");
+      
+          document.getElementById('type_'+name).innerHTML=xmlDoc.getElementsByTagName("ows:Identifier")[0].childNodes[0].nodeValue;
+          var inputParam = xmlDoc.getElementsByTagName("Input");
+          var tblContent='<table border="1">';
+          tblContent+='<th>Input Type</th><th>Description</th>';
+          for(var i=0;i<inputParam.length;i++){
+            tblContent+='<tr><td>';
+            tblContent+=inputParam[i].childNodes[0].childNodes[0].nodeValue;
+            tblContent+='</td><td>';
+            tblContent+=inputParam[i].childNodes[2].childNodes[0].nodeValue;
+            tblContent+='</td></tr>';
+          }
+          tblContent+='</table>';
+          document.getElementById('tbl_'+name).innerHTML=tblContent;
+  };
+    xmlHttp.send(null);
+} 
+describeProcessWps('desc_proc_wps');
+
+function executeWps (name){
+      var xmlHttp = new XMLHttpRequest();
+      var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
+      var url=(chkbWso2 ? wpsUrlExecute : geoserverUrl+'/wps');
+      xmlHttp.open("POST", url);
+      if(chkbWso2){
+        xmlHttp.setRequestHeader('Authorization', auth_token_wso2);
+      }
+      var xml = "xmlExecuteWps.xml";
+      var data='<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">'
+      +'<ows:Identifier>gs:Aggregate</ows:Identifier>'
+      +' <wps:DataInputs>'
+      +' <wps:Input>'
+      +'   <ows:Identifier>features</ows:Identifier>'
+      +' <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">'
+      +'   <wps:Body>'
+      +'    <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:sf="http://www.openplans.org/spearfish">'
+      +'      <wfs:Query typeName="topp:states"/>'
+      +'    </wfs:GetFeature>'
+      +'   </wps:Body>'
+      +' </wps:Reference>'
+      +' </wps:Input>'
+      +' <wps:Input>'
+      +'   <ows:Identifier>aggregationAttribute</ows:Identifier>'
+      +'    <wps:Data>'
+      +'      <wps:LiteralData>PERSONS</wps:LiteralData>'
+      +'    </wps:Data>'
+      +'  </wps:Input>'
+      +'<wps:Input>'
+      +'  <ows:Identifier>function</ows:Identifier>'
+      +'   <wps:Data>'
+      +'    <wps:LiteralData>Count</wps:LiteralData>'
+      +'  </wps:Data>'
+      +'</wps:Input>'
+      +'<wps:Input>'
+      +'  <ows:Identifier>function</ows:Identifier>'
+      +'  <wps:Data>'
+      +'    <wps:LiteralData>Average</wps:LiteralData>'
+      +'  </wps:Data>'
+      +'</wps:Input>'
+      +'<wps:Input>'
+      +'  <ows:Identifier>function</ows:Identifier>'
+      +'  <wps:Data>'
+      +'    <wps:LiteralData>Sum</wps:LiteralData>'
+      +'  </wps:Data>'
+      +'</wps:Input>'
+      +'<wps:Input>'
+      +'  <ows:Identifier>function</ows:Identifier>'
+      +'  <wps:Data>'
+      +'    <wps:LiteralData>Min</wps:LiteralData>'
+      +'  </wps:Data>'
+      +'</wps:Input>'
+      +'<wps:Input>'
+      +'  <ows:Identifier>function</ows:Identifier>'
+      +'  <wps:Data>'
+      +'    <wps:LiteralData>Max</wps:LiteralData>'
+      +'  </wps:Data>'
+      +'</wps:Input>'
+      +'<wps:Input>'
+      +'  <ows:Identifier>singlePass</ows:Identifier>'
+      +'  <wps:Data>'
+      +'    <wps:LiteralData>false</wps:LiteralData>'
+      +'  </wps:Data>'
+      +'</wps:Input>'
+      +'</wps:DataInputs>'
+      +'<wps:ResponseForm>'
+      +'<wps:RawDataOutput mimeType="application/json">'
+      +'   <ows:Identifier>result</ows:Identifier>'
+      +' </wps:RawDataOutput>'
+      +' </wps:ResponseForm>'
+      +'</wps:Execute>';
+      xmlHttp.onload = function (oEvent) {
+        var result = JSON.parse(xmlHttp.response);
+        var inputParam = result['AggregationFunctions'];
+        var values = result['AggregationResults'];
+        var tblContent='<table border="1" width="100%">';
+        tblContent+='<th>Aggregate</th><th>Value</th>';
+        for(var i=0;i<inputParam.length;i++){
+          tblContent+='<tr><td>';
+          tblContent+=inputParam[i];
+          tblContent+='</td><td>';
+          tblContent+=values[0][i];
+          tblContent+='</td></tr>';
+        }
+        tblContent+='</table>';
+        document.getElementById('tbl_'+name).innerHTML=tblContent;
+    };
+      xmlHttp.send(data);
+} 
+executeWps('wps_execute');
 
 var layers={};
 // A WMS Geoserver layer
