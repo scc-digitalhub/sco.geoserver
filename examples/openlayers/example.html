@@ -20,21 +20,21 @@
                 <div class="wrapper" id="GeoServer_table">
                         <div class="row">
                                         <div class="hasProblem">
-                                                <p>URL:  /geoserver/wms ImageWMS</p> 
+                                                <p>1) URL:  /geoserver/wms ImageWMS</p> 
                                                 <label>
                                                         <input type="checkbox" id="imagewms" onchange="enableAuthToken('imagewms');">WSO2
                                                 </label>
                                                 <div id="map['imagewms']" tabindex="0" class="mapContainer"></div>
                                         </div>
                                         <div class="noProblem">
-                                                <p>URL:  /geoserver/wfs Vector application/json</p> 
+                                                <p>2) URL:  /geoserver/wfs Vector application/json</p> 
                                                 <label>
                                                         <input type="checkbox" id="vectorwfs" onchange="enableAuthToken('vectorwfs');">WSO2
                                                 </label>
                                                 <div id="map['vectorwfs']" tabindex="0" class="mapContainer"></div>
                                         </div>
                                         <div class="hasProblem">
-                                                <p>URL:  /geoserver/wcs TileWMS</p> 
+                                                <p>3) URL:  /geoserver/wcs TileWMS</p> 
                                                 <label>
                                                         <input type="checkbox" id="tilewcs" onchange="enableAuthToken('tilewcs');">WSO2
                                                 </label>
@@ -45,29 +45,31 @@
                 <br/><br/>
                 <div class="row">
                                 <div class="noProblem">
-                                        <p>URL: /geoserver/wms  Vector KML</p> 
+                                        <p>4) URL: /geoserver/wms  Vector KML</p> 
                                         <label>
                                                 <input type="checkbox" id="vector_kml_wms" onchange="enableAuthToken('vector_kml_wms');">WSO2
                                         </label>
                                         <div id="map['vector_kml_wms']" tabindex="0" class="mapContainer"></div>
                                 </div>
                                 <div class="noProblem">
-                                        <p>URL: /geoserver/wps  DescribeProcess gs:Aggregate</p> 
+                                        <p>5) URL: /geoserver/wps  DescribeProcess gs:Aggregate</p> 
                                         <label>
                                                 <input type="checkbox" id="desc_proc_wps" onchange="describeProcessWps('desc_proc_wps');">WSO2
                                         </label>
                                         <div id="type_desc_proc_wps" tabindex="0"></div> 
                                         <div id="tbl_desc_proc_wps" class="mapContainer"></div>                                       
                                 </div>
-                                <div class="noProblem mapContainer exec">
-                                        <p>URL: /geoserver/wps  Execute Operation (Aggregation)
-                                        <br/><br/>
-                                        Counts the total number of states, sum all the number of persons, computes the average number of persons per state and give the maximum and minimum number of persons in a state </p>
+                                <div class="noProblem exec">
+                                        <p>6) URL: /geoserver/wps  Execute Operation (Aggregation)</p>
                                         <label>
                                                 <input type="checkbox" id="wps_execute" onchange="executeWps('wps_execute');">WSO2
                                         </label>
                                         <br/><br/>
-                                        <div id="tbl_wps_execute" tabindex="0"></div>
+                                        <span class="desc_wps_exec">
+                                                (Counts the total number of states, sum all the number of persons, computes the average number of persons per state and give the maximum and minimum number of persons in a state) 
+                                        </span>                                        
+                                        <br/><br/>
+                                        <div id="tbl_wps_execute" class="mapContainer" tabindex="0"></div>
                                 </div>
                 </div> 
                 

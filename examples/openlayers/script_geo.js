@@ -6,6 +6,7 @@ function enableAuthToken (name){
 
 function describeProcessWps (name){
 
+    document.getElementById('tbl_'+name).innerHTML='';
     var xmlHttp = new XMLHttpRequest();
     var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
     var url=(chkbWso2 ? wpsUrl : geoserverUrl+'/wps');
@@ -37,6 +38,8 @@ function describeProcessWps (name){
 describeProcessWps('desc_proc_wps');
 
 function executeWps (name){
+
+      document.getElementById('tbl_'+name).innerHTML='';
       var xmlHttp = new XMLHttpRequest();
       var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
       var url=(chkbWso2 ? wpsUrlExecute : geoserverUrl+'/wps');
@@ -44,7 +47,6 @@ function executeWps (name){
       if(chkbWso2){
         xmlHttp.setRequestHeader('Authorization', auth_token_wso2);
       }
-      var xml = "xmlExecuteWps.xml";
       var data='<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">'
       +'<ows:Identifier>gs:Aggregate</ows:Identifier>'
       +' <wps:DataInputs>'

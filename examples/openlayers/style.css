@@ -70,4 +70,10 @@ div.tab button.active {
 
 .exec{
     height: 680px;
+    width:570px;
+}
+
+.desc_wps_exec{
+    font-size: 15px;
+    font-style: italic;
 }
