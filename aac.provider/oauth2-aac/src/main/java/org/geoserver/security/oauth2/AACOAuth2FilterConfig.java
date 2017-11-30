@@ -44,9 +44,9 @@ public class AACOAuth2FilterConfig extends PreAuthenticatedUserNameFilterConfig
 
     protected Boolean enableRedirectAuthenticationEntryPoint = false;
     
-    protected Boolean forceAccessTokenUriHttps = true;
+    protected Boolean forceAccessTokenUriHttps = false;
     
-    protected Boolean forceUserAuthorizationUriHttps = true;
+    protected Boolean forceUserAuthorizationUriHttps = false;
     
     protected String loginEndpoint = "/j_spring_oauth2_aac_login";
     
