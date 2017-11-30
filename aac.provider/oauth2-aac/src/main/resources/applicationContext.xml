@@ -56,11 +56,12 @@
 	<!-- login button -->
  	<bean id="aacFormLoginButton" class="org.geoserver.web.LoginFormInfo">
  		<property name="id" value="aacFormLoginButton" />
- 		<property name="titleKey" value="" />
- 		<property name="descriptionKey" value="AACOAuth2AuthProviderPanel.description" />
+ 		<property name="titleKey" value="LoginButton.text" />
+ 		<property name="descriptionKey" value="" />
  		<property name="componentClass" value="org.geoserver.web.security.oauth2.AACOAuth2AuthProviderPanel" />
  		<property name="name" value="aac" />
- 		<property name="icon" value="google.png" />
+ 		<property name="icon" value="door-in.png" />
+ 		<property name="include" value="login-include.html" />
  		<property name="loginPath" value="web/j_spring_oauth2_aac_login" />
  	</bean>
 

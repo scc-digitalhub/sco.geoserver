@@ -41,45 +41,41 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
         this.oauth2RestTemplate = oauth2RestTemplate;
     }
     
-//    @Override
-//    protected Collection<GeoServerRole> getRoles(HttpServletRequest request, String principal) throws IOException {
-//    	Collection<GeoServerRole> gsRoles = new ArrayList<GeoServerRole>();
-//    	
-//    	List<AACRole> roles = null;
-//    	OAuth2AccessToken token = oauth2RestTemplate.getOAuth2ClientContext().getAccessToken();
-//    	String path = ((AACOAuth2FilterConfig) filterConfig).getUserRolesEndpoint();
-//    	
-//    	//get AAC roles
-//    	if (token != null || path != null) {
-//    		System.out.println("Token: " + token);
-//    		
-//    		HttpHeaders headers = new HttpHeaders();
-//    		headers.set("Authorization", "Bearer "+token.getValue());
-//    		
-//    		ParameterizedTypeReference<List<AACRole>> listType = new ParameterizedTypeReference<List<AACRole>>() {};
-//    		roles = oauth2RestTemplate.exchange(path, HttpMethod.GET, new HttpEntity<>(headers), listType).getBody();
-//    		
-//    		for (AACRole role : roles) {
-//    			System.out.println(role.getRole() +" " + role.getScope() + " " + role.getContext());
-//    		}
-//    	}
-//    	
-//    	if (roles != null) {
-//    		for (AACRole role : roles) {
-//    			if (role.getRole().equals(AACRole.PROVIDER) && role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())) {
-//    				gsRoles.add(GeoServerRole.ADMIN_ROLE);
-//    			}
-//    		}
-//    	}
-//        
-//    	//SortedSet<GeoServerRole> set = getSecurityManager().getActiveRoleService().getRolesForUser(principal);
-//    	//System.out.println("roles: "+set);
-//    	
-//        //return super.getRoles(request, principal);
-//    	System.out.println("roles returned from getRoles: "+gsRoles);
-//        return gsRoles;
-//    }
-    
+    @Override
+    protected Collection<GeoServerRole> getRoles(HttpServletRequest request, String principal) throws IOException {
+    	Collection<GeoServerRole> gsRoles = new ArrayList<GeoServerRole>();
+    	
+    	List<AACRole> roles = null;
+    	OAuth2AccessToken token = oauth2RestTemplate.getOAuth2ClientContext().getAccessToken();
+    	String path = ((AACOAuth2FilterConfig) filterConfig).getUserRolesEndpoint();
+    	
+    	//get AAC roles
+    	if (token != null || path != null) {
+    		System.out.println("Token: " + token);
+    		
+    		HttpHeaders headers = new HttpHeaders();
+    		headers.set("Authorization", "Bearer "+token.getValue());
+    		
+    		ParameterizedTypeReference<List<AACRole>> listType = new ParameterizedTypeReference<List<AACRole>>() {};
+    		roles = oauth2RestTemplate.exchange(path, HttpMethod.GET, new HttpEntity<>(headers), listType).getBody();
+    		
+    		for (AACRole role : roles) {
+    			System.out.println(role.getRole() +" " + role.getScope() + " " + role.getContext());
+    		}
+    	}
+    	
+    	if (roles != null) {
+    		for (AACRole role : roles) {
+    			if (role.getRole().equals(AACRole.PROVIDER) && role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())) {
+    				gsRoles.add(GeoServerRole.ADMIN_ROLE);
+    			}
+    		}
+    	}
+    	
+        //return super.getRoles(request, principal);
+    	System.out.println("roles returned from getRoles: "+gsRoles);
+        return gsRoles;
+    }
     
 	private static class AACRole {
 		//{"id": 21,"scope": "system","role": "ROLE_ADMIN","context": null,"authority": "ROLE_ADMIN"}
