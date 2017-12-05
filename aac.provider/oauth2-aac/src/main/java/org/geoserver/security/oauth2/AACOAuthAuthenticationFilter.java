@@ -5,9 +5,11 @@
 package org.geoserver.security.oauth2;
 
 import java.io.IOException;
-import java.security.Principal;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -21,17 +23,20 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.security.GeoServerRoleService;
 import org.geoserver.security.GeoServerRoleStore;
-import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.config.SecurityNamedServiceConfig;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.GeoServerRole;
-import org.geoserver.web.GeoServerApplication;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +45,9 @@ import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * @author Alessio Fabiani, GeoSolutions S.A.S.
@@ -178,19 +186,27 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     				//user is the owner of a workspace in sco.geoserver
     				String wsName = role.getRole().substring(((AACOAuth2FilterConfig) filterConfig).getRolePrefix().length());
     				System.out.println("workspace: "+wsName);
+    				//check if workspace exists
+    				if (checkWorkspace(wsName, token)) {
+    					//
+    				}
     				
-    				GeoServerRole wsOwner = new GeoServerRole(WS_OWNER);
-
-					GeoServerRoleStore store = getSecurityManager().getActiveRoleService().createStore();
-					store.removeRole(wsOwner);
-					
+    				GeoServerRole wsOwner = new GeoServerRole(WS_OWNER); //TODO check if it already exists
     				wsOwner.getProperties().setProperty("ws_name", wsName); //set name of the workspace owned by user as role property
     				wsOwner.setUserName(principal);
-    				if (getSecurityManager().getActiveRoleService().canCreateStore()) {
-    					store.addRole(wsOwner);
-    					//store.associateRoleToUser(wsOwner, principal);
-    					store.store();
-    				}
+    				
+//    				if (getSecurityManager().getActiveRoleService().canCreateStore()) {
+//    					GeoServerRoleStore store = getSecurityManager().getActiveRoleService().createStore();
+//    					if (store.getRoleByName(WS_OWNER) == null) {
+//    						store.addRole(wsOwner);
+//    						store.associateRoleToUser(wsOwner, principal);
+//    						store.store();
+//    					} else {
+//    						store.updateRole(wsOwner);
+//    						store.store();
+//    					}
+//    					
+//    				}
     				gsRoles.add(wsOwner);
     			}
     		}
@@ -210,8 +226,39 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     	System.out.println("roles returned from getRoles: "+gsRoles);
         return gsRoles;
     }
-
-
+    
+    private boolean checkWorkspace(String workspaceName, OAuth2AccessToken token) {
+    	String apiUrl = "http://localhost:10000/geoserver/rest/workspaces";
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "Bearer "+token.getValue());
+		boolean ret = false;
+		//org.geoserver.rest.ResourceNotFoundException
+		try {
+			ParameterizedTypeReference<WorkspaceInfoImpl> workspaceJson = new ParameterizedTypeReference<WorkspaceInfoImpl>() {};
+			WorkspaceInfoImpl workspace = oauth2RestTemplate.exchange(apiUrl+"/"+workspaceName, HttpMethod.GET, new HttpEntity<>(headers), workspaceJson).getBody();
+			if(workspace != null)
+				ret = true;
+		} catch (HttpClientErrorException e) {
+			if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				try {
+					headers.setContentType(MediaType.APPLICATION_JSON); //prevents 415 Unsupported Media Type
+					
+					Map<String,String> map = Collections.singletonMap("name", workspaceName);
+					HttpEntity<Map<String,String>> request = new HttpEntity<Map<String,String>>(map, headers);
+					
+					//Map<String,String> answer = restTemplate.postForObject(apiUrl, request, Map.class);
+					//System.out.println(answer);
+					ParameterizedTypeReference<WorkspaceInfoImpl> wsList = new ParameterizedTypeReference<WorkspaceInfoImpl>() {};
+					ResponseEntity<WorkspaceInfoImpl> wsInfo = oauth2RestTemplate.exchange(apiUrl, HttpMethod.POST, request, wsList);
+					ret = true;
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+		System.out.println("here");
+		return ret;
+    }
 
 	private static class AACRole {
 		//{"id": 21,"scope": "system","role": "ROLE_ADMIN","context": null,"authority": "ROLE_ADMIN"}
