@@ -4,14 +4,14 @@
  */
 package org.geoserver.security.oauth2;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.logging.Level;
 
@@ -23,13 +23,20 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
+import org.geoserver.security.AccessMode;
 import org.geoserver.security.GeoServerRoleService;
 import org.geoserver.security.GeoServerRoleStore;
 import org.geoserver.security.config.SecurityNamedServiceConfig;
+import org.geoserver.security.impl.DataAccessRule;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.GeoServerRole;
+import org.geoserver.security.impl.GeoServerUser;
+import org.geoserver.security.password.GeoServerPBEPasswordEncoder;
+import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -45,8 +52,6 @@ import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
 /**
@@ -55,7 +60,7 @@ import org.springframework.web.client.HttpClientErrorException;
  */
 public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFilter {
 	OAuth2RestOperations oauth2RestTemplate;
-	private static final String WS_OWNER = "ROLE_WS_OWNER";
+	private static final String WS_OWNER = "OWNER_";
 
     public AACOAuthAuthenticationFilter(SecurityNamedServiceConfig config,
             RemoteTokenServices tokenServices,
@@ -185,79 +190,168 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     					&& role.getScope().equalsIgnoreCase(AACRole.RoleScope.APPLICATION.toString())) {
     				//user is the owner of a workspace in sco.geoserver
     				String wsName = role.getRole().substring(((AACOAuth2FilterConfig) filterConfig).getRolePrefix().length());
-    				System.out.println("workspace: "+wsName);
-    				//check if workspace exists
-    				if (checkWorkspace(wsName, token)) {
-    					//
+    				
+    				if(getWorkspace(wsName) != null) {
+    					GeoServerRole wsOwner = getWorkspaceOwner(wsName, principal);
+    					if(wsOwner != null) {
+    						setPolicy(wsOwner, wsName);
+    						gsRoles.add(wsOwner);
+    					}
     				}
-    				
-    				GeoServerRole wsOwner = new GeoServerRole(WS_OWNER); //TODO check if it already exists
-    				wsOwner.getProperties().setProperty("ws_name", wsName); //set name of the workspace owned by user as role property
-    				wsOwner.setUserName(principal);
-    				
-//    				if (getSecurityManager().getActiveRoleService().canCreateStore()) {
-//    					GeoServerRoleStore store = getSecurityManager().getActiveRoleService().createStore();
-//    					if (store.getRoleByName(WS_OWNER) == null) {
-//    						store.addRole(wsOwner);
-//    						store.associateRoleToUser(wsOwner, principal);
-//    						store.store();
-//    					} else {
-//    						store.updateRole(wsOwner);
-//    						store.store();
-//    					}
-//    					
-//    				}
-    				gsRoles.add(wsOwner);
     			}
     		}
-    	}
-    	
-    	//TODO policy (via REST): cache rules, check that role exists for WS
-    	//rule format: <workspace>.<layer>.[r|w|a]
-    	//json to add rule: {"rule": {"@resource": "<workspace>.<layer>.[r|w|a]","text": "role1,role2,..."}}
-    	
-    	DataAccessRuleDAO dao = getSecurityManager().getDataAccessRuleDAO();
-    	//dao.
-    	SortedSet<GeoServerRole> roleServiceRoles = getSecurityManager().getActiveRoleService().getRoles();
-    	for (GeoServerRole role : roleServiceRoles) {
-    		System.out.println("auth: "+role.getAuthority());
     	}
     	
     	System.out.println("roles returned from getRoles: "+gsRoles);
         return gsRoles;
     }
     
-    private boolean checkWorkspace(String workspaceName, OAuth2AccessToken token) {
+    /**
+     * 
+     * @param role
+     * @param workspaceName
+     */
+    private void setPolicy(GeoServerRole role, String workspaceName) {
+    	try {
+			DataAccessRuleDAO dao = getSecurityManager().getApplicationContext().getBean(DataAccessRuleDAO.class);
+			SortedSet<DataAccessRule> rules = dao.getRulesAssociatedWithRole(role.getAuthority());
+			if(rules.isEmpty()) {
+				DataAccessRule rule = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.WRITE, role.getAuthority());
+				dao.addRule(rule);
+				dao.storeRules();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    
+    /**
+     * Check if a role for the owner of a workspace already exists, otherwise create it.
+     * @param workspaceName workspace name
+     * @param principal user associated to the role
+     * @return GeoServerRole if role exists or has been created
+     */
+    private GeoServerRole getWorkspaceOwner(String workspaceName, String principal) {
+    	GeoServerRole owner = null;
+    	try {
+    		GeoServerRoleService roleService = getSecurityManager().getActiveRoleService();
+    		owner = roleService.getRoleByName(WS_OWNER + workspaceName);
+    		if (owner == null) {
+    			if (roleService.canCreateStore()) {
+    				GeoServerRoleStore store = roleService.createStore();
+    				owner = new GeoServerRole(WS_OWNER + workspaceName);
+    				owner.getProperties().setProperty("ws_name", workspaceName);
+    				owner.setUserName(principal);
+    				
+    				store.addRole(owner);
+    				store.associateRoleToUser(owner, principal);
+    				store.store();
+    			}
+    		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	return owner;
+    }
+    
+    /**
+     * Check if a workspace already exists, otherwise create it.
+     * @param workspaceName workspace name
+     * @return WorkspaceInfo if workspace exists or has been created
+     */
+    private WorkspaceInfo getWorkspace(String workspaceName) {
+    	WorkspaceInfo workspace = null;
+		
+		//use catalog bean to get or create workspace
+		try {
+			Catalog catalog = (Catalog) getSecurityManager().getApplicationContext().getBean("rawCatalog");
+			workspace = catalog.getWorkspaceByName(workspaceName);
+			NamespaceInfo namespace = catalog.getNamespaceByPrefix(workspaceName);
+			
+			if (workspace == null) {
+				if (namespace != null) {
+					catalog.detach(namespace);
+				}
+				workspace = catalog.getFactory().createWorkspace();
+				workspace.setName(workspaceName);
+				namespace = catalog.getFactory().createNamespace();
+				namespace.setPrefix(workspaceName);
+				
+				try {
+					Properties prop = new Properties();
+					String path = Thread.currentThread().getContextClassLoader().getResource("namespace.properties").getPath();
+					prop.load(new FileInputStream(path));
+					String uri = prop.getProperty("URI");
+					namespace.setURI(uri + workspaceName);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				if (namespace.getURI() != null) {
+					catalog.add(workspace);
+					catalog.add(namespace);
+				}
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return workspace;
+		
+		/******************
     	String apiUrl = "http://localhost:10000/geoserver/rest/workspaces";
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "Bearer "+token.getValue());
-		boolean ret = false;
-		//org.geoserver.rest.ResourceNotFoundException
-		try {
-			ParameterizedTypeReference<WorkspaceInfoImpl> workspaceJson = new ParameterizedTypeReference<WorkspaceInfoImpl>() {};
-			WorkspaceInfoImpl workspace = oauth2RestTemplate.exchange(apiUrl+"/"+workspaceName, HttpMethod.GET, new HttpEntity<>(headers), workspaceJson).getBody();
-			if(workspace != null)
-				ret = true;
-		} catch (HttpClientErrorException e) {
-			if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
-				try {
-					headers.setContentType(MediaType.APPLICATION_JSON); //prevents 415 Unsupported Media Type
-					
-					Map<String,String> map = Collections.singletonMap("name", workspaceName);
-					HttpEntity<Map<String,String>> request = new HttpEntity<Map<String,String>>(map, headers);
-					
-					//Map<String,String> answer = restTemplate.postForObject(apiUrl, request, Map.class);
-					//System.out.println(answer);
-					ParameterizedTypeReference<WorkspaceInfoImpl> wsList = new ParameterizedTypeReference<WorkspaceInfoImpl>() {};
-					ResponseEntity<WorkspaceInfoImpl> wsInfo = oauth2RestTemplate.exchange(apiUrl, HttpMethod.POST, request, wsList);
+		try { //prepare authorization header
+			GeoServerUser admin = getSecurityManager().loadUserGroupService("default").getUserByUsername("admin");
+			String credentials = admin.getUsername() + ":";
+
+			if(getSecurityManager().checkForDefaultAdminPassword()) {
+				credentials += admin.DEFAULT_ADMIN_PASSWD;
+			}
+			else {
+				//TODO handle change of default password
+//				GeoServerPBEPasswordEncoder encoder = (GeoServerPBEPasswordEncoder)(getSecurityManager().loadPasswordEncoder("pbePasswordEncoder"));
+//				if (encoder != null) {
+//					credentials += encoder.decode(admin.getPassword()); //javax.crypto.BadPaddingException
+//				}
+			}
+			
+			System.out.println(credentials);
+			
+			String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+			headers.set("Authorization", "Basic " + encodedCredentials);
+			
+			try { //try to get workspace
+				//TODO change WorkspaceInfoImpl to WorkspaceInfo and check that it works
+				ParameterizedTypeReference<WorkspaceInfoImpl> workspaceJson = new ParameterizedTypeReference<WorkspaceInfoImpl>() {};
+				WorkspaceInfoImpl workspace = oauth2RestTemplate.exchange(apiUrl+"/"+workspaceName, HttpMethod.GET, new HttpEntity<>(headers), workspaceJson).getBody();
+				if(workspace != null)
 					ret = true;
-				} catch (Exception ex) {
-					ex.printStackTrace();
+			} catch (HttpClientErrorException e) {
+				if(e.getStatusCode() == HttpStatus.NOT_FOUND) { //workspace does not exist
+					try {
+						headers.setContentType(MediaType.APPLICATION_XML);
+						
+						String xmlTemplate = String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?><workspace><name>%s</name></workspace>", workspaceName);
+						
+						HttpEntity<String> entity = new HttpEntity<String>(xmlTemplate, headers);
+						ResponseEntity<String> wsInfo = oauth2RestTemplate.postForEntity(apiUrl, entity, String.class);
+						
+						if(wsInfo.getStatusCode() == HttpStatus.CREATED)
+							ret = true;
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (Exception e2) {
+			e2.printStackTrace();
 		}
-		System.out.println("here");
 		return ret;
+		******************/
     }
 
 	private static class AACRole {
