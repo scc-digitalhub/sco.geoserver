@@ -1,5 +1,5 @@
 
-var types=['all','bike','bus','train','walk'];
+var types=['all','bike','bus','train','walk','planned'];
 
 function enableAuthToken (name){
   var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
@@ -130,6 +130,22 @@ layers['train_hm'] =     new ol.layer.Image({
           ratio: 1,
           serverType: 'geoserver'
   })
+});
+
+sources['planned'] =     new ol.source.ImageWMS({
+  url: geoserverUrl+'/wms',
+  params: {'LAYERS': 'topp:playgo_planned'},
+  ratio: 1,
+  serverType: 'geoserver'
+});
+layers['planned_hm'] =     new ol.layer.Image({
+//extent: [-13884991, 2870341, -7455066, 6338219],
+source: new ol.source.ImageWMS({
+  url: geoserverUrl+'/wms',
+  params: {'LAYERS': 'topp:playgo_planned','Styles':'topp:play_ti'},
+  ratio: 1,
+  serverType: 'geoserver'
+})
 });
 
 layers['all'] =     new ol.layer.Image({
