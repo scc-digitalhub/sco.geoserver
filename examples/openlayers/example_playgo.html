@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+        <link rel="stylesheet" href="http://localhost:8080/geoserver/openlayers3/ol.css" type="text/css">
+        <link rel="stylesheet" href="style.css" type="text/css">
+        <script type="text/javascript" src="http://localhost:8080/geoserver/openlayers3/ol.js"></script>
+        <script type="text/javascript" src="config.js" ></script>
+        <script type="text/javascript" src="script_wso2.js" ></script>
+        <script type="text/javascript" src="prototype.js" ></script>
+        <title>Play&Go Scenario</title>
+  </head>
+  <body>
+
+        <div class="tab">
+                <button class="tablinks active " name="GeoServer">Play&Go Scenario</button>
+        </div>
+
+        <div id="GeoServer" class="tabcontent">
+                <div class="wrapper" id="GeoServer_table">
+                        <div class="row">
+                                        <div class="noProblem">
+                                                <div class="header_element">1) PlayGo Scenario</div> 
+                                                <!--<label>
+                                                        <input type="checkbox" id="imagewms" onchange="enableAuthToken('imagewms');">WSO2
+                                                </label>-->
+                                                <div id="map['imagewms']" tabindex="0" class="mapContainer_play"></div>
+                                        </div>
+                        </div>
+                        <div class="panel">
+                                <div style="width:100%;">
+                                        <div class="header_element">
+                                                <span><b>Layers</b></span>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" name="tracking" value="walk" id="all" onchange="loadData('all');"/></span>
+                                                <span><label for="all">All</label></span>
+                                                <div id="lbl_all">
+                                                        <span class="chkb_remove"><input type="checkbox" id="all_chkb" onchange="loadInfo('all');"/></span>
+                                                        <span><label for="all_chkb">Show Tracking</label></span>
+                                                </div>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" name="tracking" value="walk" id="walk" onchange="loadData('walk');"/></span>
+                                                <span><label for="walk">Walk</label></span>
+                                                <div id="lbl_walk">
+                                                        <span class="chkb_remove"><input type="checkbox" id="walk_chkb" onchange="loadInfo('walk');"/></span>
+                                                        <span><label for="walk_chkb">Show Tracking</label></span>
+                                                </div>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" name="tracking" value="bike" id="bike" onchange="loadData('bike');"/></span>
+                                                <span><label for="bike">Bike</label></span>
+                                                <div id="lbl_bike">
+                                                        <span class="chkb_remove"><input type="checkbox" id="bike_chkb" onchange="loadInfo('bike');"/></span>
+                                                        <span><label for="bike_chkb">Show Tracking</label></span>
+                                                </div>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" name="tracking" value="train" id="train" onchange="loadData('train');"/></span>
+                                                <span><label for="train">Train</label></span>
+                                                <div id="lbl_train">
+                                                        <span class="chkb_remove"><input type="checkbox" id="train_chkb" onchange="loadInfo('train');"/></span>
+                                                        <span><label for="train_chkb">Show Tracking</label></span>
+                                                </div>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" name="tracking" value="bus" id="bus" onchange="loadData('bus');"/></span>
+                                                <span><label for="bus">Bus</label></span>
+                                                <div id="lbl_bus">
+                                                        <span class="chkb_remove"><input type="checkbox" id="bus_chkb" onchange="loadInfo('bus');"/></span>
+                                                        <span><label for="bus_chkb">Show Tracking</label></span>
+                                                </div>
+                                        </div>
+
+
+                                        <div class="header_element">
+                                                <span><b>Filters</b></span>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" value="valid" id="valid" name="validity" onchange="loadFilter('VALID');"/></span>
+                                                <span><label for="valid">Valid</label></span>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" value="invalid" id="invalid" name="validity" onchange="loadFilter('INVALID');"/></span>
+                                                <span><label for="invalid">InValid</label></span>
+                                        </div>
+                                        <div class="element">
+                                                <span><input type="radio" value="" id="empty" name="validity" onchange="loadFilter('');"/></span>
+                                                <span><label for="empty">Other</label></span>
+                                        </div>
+                                </div>
+                        </div>
+                </div>  
+                <div class="wrapper" id="GeoServer_table">
+                        <div class="row">
+                                        <div class="noProblem">
+                                                <div class="header_element">3) Medford Bike </div> 
+                                                <label>
+                                                        <input type="checkbox" id="tilewcs" onchange="enableAuthToken('tilewcs');">WSO2
+                                                </label>
+                                                <div id="map['tilewcs']" tabindex="0" class="mapContainer_play"></div>
+                                        </div>
+                        </div>
+                </div>   
+                <!--<div class="wrapper" id="GeoServer_table">
+                        <div class="row">
+                                        <div class="noProblem">
+                                                <p>3) PlayGo Styling</p> 
+                                                <label>
+                                                        <input type="checkbox" id="play_style" onchange="enableAuthToken('play_style');">WSO2
+                                                </label>
+                                                <div id="map['play_style']" tabindex="0" class="mapContainer_play"></div>
+                                        </div>
+                        </div>
+                </div>    -->           
+        </div>
+<script type="text/javascript" src="script_playgo.js" ></script>
+</body>
+</html>

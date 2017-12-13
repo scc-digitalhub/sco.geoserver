@@ -29,7 +29,6 @@ div.tab button.active {
 
 /* Style the tab content */
 .tabcontent {
-    display: block;
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
@@ -44,7 +43,13 @@ div.tab button.active {
     display: flex;
     direction: row;
 }
-
+.panel{
+    display: flex;
+    direction: column;
+    border: 2px solid green;
+    margin: 5px;
+    width:20%;
+}
 .hasProblem{
     border: 2px solid red;
     margin: 5px;
@@ -58,6 +63,11 @@ div.tab button.active {
 .mapContainer{
     width:550px;
     height:550px;
+    padding:10px;
+}
+.mapContainer_play{
+    width:1500px;
+    height:1000px;
     padding:10px;
 }
 
@@ -76,4 +86,37 @@ div.tab button.active {
 .desc_wps_exec{
     font-size: 15px;
     font-style: italic;
+}
+
+.header_element{
+    padding: 20px;
+    background-color: rgba(123, 255, 0, 0.15);
+    border-bottom : 2px solid green;
+    border-top : 2px solid green;
+    text-align: center;
+}
+.element{
+    padding: 10px;
+    display: flex;
+    direction: row;
+}
+
+.chkb_remove{
+    margin-left: 25px;
+}
+
+#lbl_bus{
+    display: none;
+}
+#lbl_walk{
+    display: none;
+}
+#lbl_train{
+    display: none;
+}
+#lbl_bike{
+    display: none;
+}
+#lbl_all{
+    display: none;
 }
