@@ -86,8 +86,8 @@ public class Importer {
                 }
                 obj.put("features", features);
                 i++;
-                if (i == 5)
-                    break;// FIX THIS temporarly to easy tests due to large amount of data
+                // if (i == 5)
+                // break;// FIX THIS: temporal solution to easy tests due to large amount of data
             }
 
             try (FileWriter file = new FileWriter(path + geoJSONFile)) {

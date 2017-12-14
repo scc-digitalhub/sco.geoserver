@@ -21,9 +21,6 @@
                         <div class="row">
                                         <div class="noProblem">
                                                 <div class="header_element">1) PlayGo Scenario</div> 
-                                                <!--<label>
-                                                        <input type="checkbox" id="imagewms" onchange="enableAuthToken('imagewms');">WSO2
-                                                </label>-->
                                                 <div id="map['imagewms']" tabindex="0" class="mapContainer_play"></div>
                                         </div>
                         </div>
@@ -97,31 +94,19 @@
                                                 <span><input type="radio" value="" id="empty" name="validity" onchange="loadFilter('');"/></span>
                                                 <span><label for="empty">Other</label></span>
                                         </div>
+
+
+                                        <div class="header_element">
+                                                <span><b>Source</b></span>
+                                        </div>
+                                        <div class="element">
+                                                <label>
+                                                        <input type="checkbox" id="imagewms" onchange="enableAuthToken('imagewms');">WSO2
+                                                </label>
+                                        </div>
                                 </div>
                         </div>
-                </div>  
-                <div class="wrapper" id="GeoServer_table">
-                        <div class="row">
-                                        <div class="noProblem">
-                                                <div class="header_element">3) Medford Bike </div> 
-                                                <label>
-                                                        <input type="checkbox" id="tilewcs" onchange="enableAuthToken('tilewcs');">WSO2
-                                                </label>
-                                                <div id="map['tilewcs']" tabindex="0" class="mapContainer_play"></div>
-                                        </div>
-                        </div>
-                </div>   
-                <!--<div class="wrapper" id="GeoServer_table">
-                        <div class="row">
-                                        <div class="noProblem">
-                                                <p>3) PlayGo Styling</p> 
-                                                <label>
-                                                        <input type="checkbox" id="play_style" onchange="enableAuthToken('play_style');">WSO2
-                                                </label>
-                                                <div id="map['play_style']" tabindex="0" class="mapContainer_play"></div>
-                                        </div>
-                        </div>
-                </div>    -->           
+                </div>          
         </div>
 <script type="text/javascript" src="script_playgo.js" ></script>
 </body>

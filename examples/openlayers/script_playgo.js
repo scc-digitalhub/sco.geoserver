@@ -1,12 +1,13 @@
 
 var types=['all','bike','bus','train','walk','planned'];
+var selectedType='all';
 
 function enableAuthToken (name){
   var chkbWso2 = (document.getElementById(name) ? document.getElementById(name).checked : false);
   var layer = (chkbWso2 ? wso2_layers[name] : layers[name]);
   map[name].getLayers().setAt(1, layer);
 } 
-var selectedType='all';
+
 function loadData(type){
   selectedType=type;
   var layername='playgo_'+type;
@@ -31,11 +32,8 @@ function loadInfo(type){
 
 function loadFilter(value){
     var name='imagewms';
-    console.log(sources[selectedType]);
-    console.log(sources[selectedType].getProperties());
     sources[selectedType].updateParams({'CQL_FILTER':"validity = '"+value+"'"});
     map[name].getLayers().getArray()[1].getSource().updateParams({'CQL_FILTER':"validity = '"+value+"'"});
-    //sources[selectedType]['params']['CQL_FILTER']="validity = 'valid'";
 }
 
 var style = new ol.style.Style({
@@ -47,125 +45,72 @@ var style = new ol.style.Style({
     })
   })
 });
+
 //sources
 var sources={};
 var layers={};
-// A WMS Geoserver layer
-sources['all'] =  new ol.source.ImageWMS({
-  url: geoserverUrl+'/wms',
-  params: {'LAYERS': 'topp:OGRGeoJSON_0'},
-  ratio: 1,
-  serverType: 'geoserver'
-});
 
-layers['all_hm'] =     new ol.layer.Image({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
-  source: new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_ti'},
-          ratio: 1,
-          serverType: 'geoserver'
-  })
-});
+for(var k=0;k<types.length;k++){
+    sources[types[k]] =  new ol.source.Vector({
+        url: geoserverUrl+'/wms?service=WMS&version=1.0.0&request=GetMap&layers=topp:playgo_'+types[k]+'&format=kml&width=200&height=200&bbox=10.9306194, 40.35092374930597,18.16706709858563, 46.496204',
+        //params: {'LAYERS': 'topp:playgo_'+types[k]},
+        //ratio: 1,
+        //serverType: 'geoserver',
+        format: new ol.format.KML()
+    });
+    layers[types[k]] =     new ol.layer.Vector({
+      source:sources[types[k]]
+    });
+    layers[types[k]+'_hmOld'] =     new ol.layer.Vector({
+        source: new ol.source.Vector({
+                //url: geoserverUrl+'/wms',
+                url:    geoserverUrl+'/wms?service=WMS&version=1.0.0&request=GetMap&layers=topp:playgo_all&format=kml&styles=play_ti&srs=EPSG:4326&width=200&height=200&bbox=10.9306194, 40.35092374930597,18.16706709858563, 46.496204',
+                //params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
+                //ratio: 1,
+                //serverType: 'geoserver',
+                format: new ol.format.KML()
+        })
+    });
+    layers[types[k]+'_hmOther'] = new ol.layer.Heatmap({
+      radius:2,
+      blur:10,
+      opacity:0.5,
+      weight:'the_geom',
+      gradient:['#FFFFFF', '#4444FF', '#FF0000', '#FFFF00'],
+      source: new ol.source.Vector({
+              //url: geoserverUrl+'/wms',
+              url:    geoserverUrl+'/wfs?service=WFS&version=1.0.0&request=GetFeature&typename=topp:playgo_'+types[k]+'&outputFormat=application/json',
+              //params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
+              //ratio: 1,
+              //serverType: 'geoserver',
+              format: new ol.format.GeoJSON()
+      })
+  });
 
-sources['bike'] =  new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_bike'},
-          ratio: 1,
-          serverType: 'geoserver'
+  layers[types[k]+'_hm'] = new ol.layer.Heatmap({
+    radius:2,
+    blur:10,
+    opacity:0.5,
+    weight:'the_geom',
+    gradient:['#FFFFFF', '#4444FF', '#FF0000', '#FFFF00'],
+    source: new ol.source.Vector({
+            //url: geoserverUrl+'/wms',
+            url:    geoserverUrl+'/wms?service=WMS&version=1.0.0&request=GetMap&layers=topp:playgo_all&format=kml&width=200&height=200&bbox=10.9306194, 40.35092374930597,18.16706709858563, 46.496204',
+            //params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
+            //ratio: 1,
+            //serverType: 'geoserver',
+            format: new ol.format.KML()
+    })
 });
-layers['bike_hm'] =     new ol.layer.Image({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
-  source: new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_bike','Styles':'topp:play_ti'},
-          ratio: 1,
-          serverType: 'geoserver'
-  })
-});
-
-sources['bus'] =   new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_bus'},
-          ratio: 1,
-          serverType: 'geoserver'
-});
-layers['bus_hm'] =     new ol.layer.Image({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
-  source: new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_bus','Styles':'topp:play_ti'},
-          ratio: 1,
-          serverType: 'geoserver'
-  })
-});
-
-sources['walk'] =   new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_walk'},
-          ratio: 1,
-          serverType: 'geoserver'
-});
-layers['walk_hm'] =     new ol.layer.Image({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
-  source: new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_walk','Styles':'topp:play_ti'},
-          ratio: 1,
-          serverType: 'geoserver'
-  })
-});
-
-sources['train'] =     new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_train'},
-          ratio: 1,
-          serverType: 'geoserver'
-});
-layers['train_hm'] =     new ol.layer.Image({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
-  source: new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:playgo_train','Styles':'topp:play_ti'},
-          ratio: 1,
-          serverType: 'geoserver'
-  })
-});
-
-sources['planned'] =     new ol.source.ImageWMS({
-  url: geoserverUrl+'/wms',
-  params: {'LAYERS': 'topp:playgo_planned'},
-  ratio: 1,
-  serverType: 'geoserver'
-});
-layers['planned_hm'] =     new ol.layer.Image({
-//extent: [-13884991, 2870341, -7455066, 6338219],
-source: new ol.source.ImageWMS({
-  url: geoserverUrl+'/wms',
-  params: {'LAYERS': 'topp:playgo_planned','Styles':'topp:play_ti'},
-  ratio: 1,
-  serverType: 'geoserver'
-})
-});
-
-layers['all'] =     new ol.layer.Image({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
-  source: new ol.source.ImageWMS({
-          url: geoserverUrl+'/wms',
-          params: {'LAYERS': 'topp:OGRGeoJSON_0'},
-          ratio: 1,
-          serverType: 'geoserver'
-  })
-});
-sources['valid'] =   new ol.source.ImageWMS({
-  url: geoserverUrl+'/wms',
-  params: {'LAYERS': 'topp:playgo_walk','CQL_FILTER':"validity = 'valid'"},
-  ratio: 1,
-  serverType: 'geoserver'
+}
+layers['all_hm'].getSource().on('addfeature', function(event) {
+  console.log(event.feature.get('the_geom'));
+  //var name = event.feature.get('name');
+  //var magnitude = parseFloat(name.substr(2));
+  //event.feature.set('weight', magnitude - 5);
 });
 
 layers['tilewcs'] =   new ol.layer.Tile({
-  //extent: [-13884991, 2870341, -7455066, 6338219],
   source: new ol.source.TileWMS({
           url: geoserverUrl+'/wcs?service=wcs&version=1.1.0&request=GetCapabilities',
           params: {
@@ -194,27 +139,6 @@ var tile = new ol.layer.Tile({
   source: new ol.source.OSM(),
   name: 'OpenStreetMap'
 });
-var layerStamenWater = new ol.layer.Tile({
-  source: new ol.source.Stamen({
-          layer: 'watercolor'
-  }),
-  name: 'Watercolor'
-});
-var layerStamenTerrain = new ol.layer.Tile({
-  source: new ol.source.Stamen({
-          layer: 'terrain'
-  }),
-  name: 'Terrain'
-});
-var layerStm = new ol.layer.Group({
-  layers: [layerStamenWater, layerStamenTerrain],
-  name: 'Stamen Group'
-});
-var raster = new ol.layer.Tile({
-  source: new ol.source.Stamen({
-          layer: 'toner'
-  })
-});
 
 layers['vector_kml_wms'] = new ol.layer.Vector({
   source: new ol.source.Vector({
@@ -238,15 +162,10 @@ var controls = ol.control.defaults().extend([
           scaleLineControl,
           zoomslider
 ]);
-13676724
 var transform=ol.proj.transform([10.887451171875,45.91389958711688], 'EPSG:4326', 'EPSG:3857');
 var zoom = 10;
 
 var layers_geo_wms =            [tile,layers['all_hm'],layers['all']];
-var layers_play_style =         [tile,layers['play_style']];
-var layers_geo_wcs =            [tile,layers['tilewcs']];
-var layers_geo_wms_kml =        [tile,layers['vector_kml_wms']];
-
 var map={};
 map['imagewms'] = new ol.Map({
   controls: controls,
@@ -259,29 +178,3 @@ map['imagewms'] = new ol.Map({
 });
 loadData('all');
 document.getElementById('all').checked=true;
-map['tilewcs'] = new ol.Map({
-  controls: ol.control.defaults().extend([
-    new ol.control.MousePosition({
-      coordinateFormat: ol.coordinate.createStringXY(4),
-      undefinedHTML: '&nbsp;'
-    }),
-    new ol.control.ScaleLine(),
-    zoomslider
-]),
-  layers: layers_geo_wcs,
-  target: "map['tilewcs']",
-  view: new ol.View({
-          center: ol.proj.transform([-122.875595,42.326515], 'EPSG:4326', 'EPSG:3857'),
-          zoom:12,
-  })
-});
-
-map['play_style'] = new ol.Map({
-  controls: controls,
-  layers: layers_play_style,
-  target: "map['play_style']",
-  view: new ol.View({
-          center: transform,
-          zoom:zoom,
-  })
-});
