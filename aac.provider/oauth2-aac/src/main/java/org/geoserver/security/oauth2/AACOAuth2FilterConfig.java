@@ -38,7 +38,7 @@ public class AACOAuth2FilterConfig extends PreAuthenticatedUserNameFilterConfig
 
     protected String checkTokenEndpointUrl = "http://localhost:8080/aac/resources/token";
 
-    protected String logoutUri = "http://localhost:8080/aac/logout";
+    protected String logoutUri = "http://localhost:8080/aac/logout?target=http://localhost:10000/geoserver";
 
     protected String scopes = "profile.basicprofile.me,user.roles.me";
 
