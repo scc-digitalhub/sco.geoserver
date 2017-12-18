@@ -13,17 +13,9 @@ Prerequisites:
 
 
     1. install the gdal-bin package:  apt install gdal-bin
+    2. start Geoserver with WPS extention enabled mvn clean install -DskipTests -P wps
 
 In order to use it will be necessary to change the following parameters:
 
     private static final String path = "path_to_the_source_file/";
     private static final String urlGeoserver = "http://localhost:8080/geoserver/";
-    
-
-## Example
-
- - The example shows the set of the layers filtered by the tracking type.
-   It also uses the WPS HeatMap integrated inside the SLD (Style Layer Descriptor) in order to perform geospatial analysis for different purposes.
-   The content of this SLD can be find in this file : sldHeatmap.xml
-   We may also filter each of the layer depending on validity of tracking.
-   This demonstrates how CQL filters work by using the WMS CQL_FILTER  parameter to alter the data displayed by WMS requests.

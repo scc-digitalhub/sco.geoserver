@@ -53,7 +53,7 @@ var layers={};
 for(var k=0;k<types.length;k++){
     sources[types[k]] =  new ol.source.ImageWMS({
         url: geoserverUrl+'/wms',
-        params: {'LAYERS': 'topp:playgo_'+types[k]},
+        params: {'LAYERS': workspace+':playgo_'+types[k]},
         ratio: 1,
         serverType: 'geoserver',
     });
@@ -63,7 +63,7 @@ for(var k=0;k<types.length;k++){
     layers[types[k]+'_hm'] =     new ol.layer.Image({
         source: new ol.source.ImageWMS({
                 url: geoserverUrl+'/wms',
-                params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
+                params: {'LAYERS': workspace+':playgo_'+types[k],'Styles':workspace+':'+sldName},
                 ratio: 1,
                 serverType: 'geoserver',
         })
