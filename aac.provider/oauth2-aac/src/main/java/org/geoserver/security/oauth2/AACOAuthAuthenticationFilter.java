@@ -35,6 +35,7 @@ import org.geoserver.security.impl.DataAccessRule;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
+import org.geoserver.security.impl.RoleCalculator;
 import org.geoserver.security.password.GeoServerPBEPasswordEncoder;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.springframework.core.ParameterizedTypeReference;
@@ -61,6 +62,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFilter {
 	OAuth2RestOperations oauth2RestTemplate;
 	private static final String WS_OWNER = "OWNER_";
+	private static final String SCO_PROVIDER = "PROVIDER_";
 
     public AACOAuthAuthenticationFilter(SecurityNamedServiceConfig config,
             RemoteTokenServices tokenServices,
@@ -163,20 +165,26 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     	
     	//get AAC roles
     	if (token != null || path != null) {
-    		System.out.println("Token: " + token);
+    		if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Access token: " + token);
+            }
     		
     		HttpHeaders headers = new HttpHeaders();
     		headers.set("Authorization", "Bearer "+token.getValue());
     		
     		ParameterizedTypeReference<List<AACRole>> listType = new ParameterizedTypeReference<List<AACRole>>() {};
     		roles = oauth2RestTemplate.exchange(path, HttpMethod.GET, new HttpEntity<>(headers), listType).getBody();
-    		
-    		for (AACRole role : roles) {
-    			System.out.println(role.getRole() +" " + role.getScope() + " " + role.getContext());
-    		}
     	}
     	
     	if (roles != null) {
+    		if (LOGGER.isLoggable(Level.FINE)) {
+    			String log = "";
+    			for (AACRole role : roles) {
+    				log += String.format("[role: %s, scope: %s, context: %s] ", role.getRole(), role.getScope(), role.getContext());
+        		}
+                LOGGER.fine("AAC roles for user: " + log);
+            }
+    		
     		for (AACRole role : roles) {
     			//normal user
     			if (role.getRole().equals(AACRole.USER) && roles.size() == 1) {
@@ -184,7 +192,12 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     			}
     			//user is the provider of sco.geoserver
     			if (role.getRole().equals(AACRole.PROVIDER) && role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())) {
-    				gsRoles.add(GeoServerRole.ADMIN_ROLE);
+    				SortedSet<GeoServerRole> providerRoles = getScoProviderRoles(principal);
+    				for (GeoServerRole providerRole : providerRoles) {
+    					gsRoles.add(providerRole);
+					}
+    				//gsRoles.add(GeoServerRole.ADMIN_ROLE);
+    					
     			} else if (role.getRole().startsWith(((AACOAuth2FilterConfig) filterConfig).getRolePrefix())
     					&& role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())
     					&& role.getScope().equalsIgnoreCase(AACRole.RoleScope.APPLICATION.toString())) {
@@ -202,7 +215,9 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     		}
     	}
     	
-    	System.out.println("roles returned from getRoles: "+gsRoles);
+    	if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.fine("Roles returned from getRoles: "+gsRoles);
+        }
         return gsRoles;
     }
     
@@ -241,18 +256,68 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     				GeoServerRoleStore store = roleService.createStore();
     				owner = new GeoServerRole(WS_OWNER + workspaceName);
     				owner.getProperties().setProperty("ws_name", workspaceName);
-    				owner.setUserName(principal);
     				
     				store.addRole(owner);
     				store.associateRoleToUser(owner, principal);
     				store.store();
     			}
     		}
+    		//TODO if role exists but is associated to a different username?
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
     	
     	return owner;
+    }
+    
+    /**
+     * Get or create roles for the provider of the API Manager domain.
+     * @param principal user associated to the role
+     * @return GeoServerRole if role exists or has been created
+     */
+    private SortedSet<GeoServerRole> getScoProviderRoles(String principal) {
+    	SortedSet<GeoServerRole> providerRoles = null;
+    	try {
+    		GeoServerRoleService roleService = getSecurityManager().getActiveRoleService();
+    		SortedSet<GeoServerRole> roles = roleService.getRolesForUser(principal);
+    		
+    		if (roles.isEmpty()) {
+    			if (roleService.canCreateStore()) {
+    				GeoServerRoleStore store = roleService.createStore();
+    				GeoServerRole provider = new GeoServerRole(SCO_PROVIDER + ((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain());
+    				store.addRole(provider);
+    				store.associateRoleToUser(provider, principal);
+    				
+    				store.associateRoleToUser(store.getAdminRole(), principal);
+    				store.store();
+    			}
+    		}
+    		
+    		if (!roles.contains(roleService.getAdminRole())) {
+    			if (roleService.canCreateStore()) {
+    				GeoServerRoleStore store = roleService.createStore();
+    				store.associateRoleToUser(store.getAdminRole(), principal);
+    				store.store();
+    			}
+    		}
+    		
+    		if (roleService.getRoleByName(SCO_PROVIDER + ((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain()) == null) {
+    			if (roleService.canCreateStore()) {
+    				GeoServerRoleStore store = roleService.createStore();
+    				GeoServerRole provider = new GeoServerRole(SCO_PROVIDER + ((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain());
+    				store.addRole(provider);
+    				store.associateRoleToUser(provider, principal);
+    				store.store();
+    			}
+    		}
+
+			RoleCalculator calc = new RoleCalculator(roleService);
+			providerRoles = calc.calculateRoles(principal);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	return providerRoles;
     }
     
     /**
@@ -299,7 +364,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 		}
 		return workspace;
 		
-		/******************
+		/*
     	String apiUrl = "http://localhost:10000/geoserver/rest/workspaces";
 		HttpHeaders headers = new HttpHeaders();
 		try { //prepare authorization header
@@ -351,7 +416,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 			e2.printStackTrace();
 		}
 		return ret;
-		******************/
+		*/
     }
 
 	private static class AACRole {
