@@ -51,64 +51,24 @@ var sources={};
 var layers={};
 
 for(var k=0;k<types.length;k++){
-    sources[types[k]] =  new ol.source.Vector({
-        url: geoserverUrl+'/wms?service=WMS&version=1.0.0&request=GetMap&layers=topp:playgo_'+types[k]+'&format=kml&width=200&height=200&bbox=10.9306194, 40.35092374930597,18.16706709858563, 46.496204',
-        //params: {'LAYERS': 'topp:playgo_'+types[k]},
-        //ratio: 1,
-        //serverType: 'geoserver',
-        format: new ol.format.KML()
+    sources[types[k]] =  new ol.source.ImageWMS({
+        url: geoserverUrl+'/wms',
+        params: {'LAYERS': 'topp:playgo_'+types[k]},
+        ratio: 1,
+        serverType: 'geoserver',
     });
-    layers[types[k]] =     new ol.layer.Vector({
+    layers[types[k]] =     new ol.layer.Image({
       source:sources[types[k]]
     });
-    layers[types[k]+'_hmOld'] =     new ol.layer.Vector({
-        source: new ol.source.Vector({
-                //url: geoserverUrl+'/wms',
-                url:    geoserverUrl+'/wms?service=WMS&version=1.0.0&request=GetMap&layers=topp:playgo_all&format=kml&styles=play_ti&srs=EPSG:4326&width=200&height=200&bbox=10.9306194, 40.35092374930597,18.16706709858563, 46.496204',
-                //params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
-                //ratio: 1,
-                //serverType: 'geoserver',
-                format: new ol.format.KML()
+    layers[types[k]+'_hm'] =     new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+                url: geoserverUrl+'/wms',
+                params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
+                ratio: 1,
+                serverType: 'geoserver',
         })
     });
-    layers[types[k]+'_hmOther'] = new ol.layer.Heatmap({
-      radius:2,
-      blur:10,
-      opacity:0.5,
-      weight:'the_geom',
-      gradient:['#FFFFFF', '#4444FF', '#FF0000', '#FFFF00'],
-      source: new ol.source.Vector({
-              //url: geoserverUrl+'/wms',
-              url:    geoserverUrl+'/wfs?service=WFS&version=1.0.0&request=GetFeature&typename=topp:playgo_'+types[k]+'&outputFormat=application/json',
-              //params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
-              //ratio: 1,
-              //serverType: 'geoserver',
-              format: new ol.format.GeoJSON()
-      })
-  });
-
-  layers[types[k]+'_hm'] = new ol.layer.Heatmap({
-    radius:2,
-    blur:10,
-    opacity:0.5,
-    weight:'the_geom',
-    gradient:['#FFFFFF', '#4444FF', '#FF0000', '#FFFF00'],
-    source: new ol.source.Vector({
-            //url: geoserverUrl+'/wms',
-            url:    geoserverUrl+'/wms?service=WMS&version=1.0.0&request=GetMap&layers=topp:playgo_all&format=kml&width=200&height=200&bbox=10.9306194, 40.35092374930597,18.16706709858563, 46.496204',
-            //params: {'LAYERS': 'topp:playgo_'+types[k],'Styles':'topp:play_ti'},
-            //ratio: 1,
-            //serverType: 'geoserver',
-            format: new ol.format.KML()
-    })
-});
 }
-layers['all_hm'].getSource().on('addfeature', function(event) {
-  console.log(event.feature.get('the_geom'));
-  //var name = event.feature.get('name');
-  //var magnitude = parseFloat(name.substr(2));
-  //event.feature.set('weight', magnitude - 5);
-});
 
 layers['tilewcs'] =   new ol.layer.Tile({
   source: new ol.source.TileWMS({

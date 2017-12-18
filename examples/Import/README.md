@@ -23,7 +23,7 @@ In order to use it will be necessary to change the following parameters:
 ## Example
 
  - The example shows the set of the layers filtered by the tracking type.
-   It also uses the WPS HeatMap integrated inside the SLD (Style Layer Descriptor) in order to analyze the geospatial information for different purposes.
+   It also uses the WPS HeatMap integrated inside the SLD (Style Layer Descriptor) in order to perform geospatial analysis for different purposes.
    The content of this SLD can be find in this file : sldHeatmap.xml
    We may also filter each of the layer depending on validity of tracking.
    This demonstrates how CQL filters work by using the WMS CQL_FILTER  parameter to alter the data displayed by WMS requests.
