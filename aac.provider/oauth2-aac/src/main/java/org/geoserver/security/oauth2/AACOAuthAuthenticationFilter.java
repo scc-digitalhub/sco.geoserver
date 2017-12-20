@@ -231,7 +231,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 			DataAccessRuleDAO dao = getSecurityManager().getApplicationContext().getBean(DataAccessRuleDAO.class);
 			SortedSet<DataAccessRule> rules = dao.getRulesAssociatedWithRole(role.getAuthority());
 			if(rules.isEmpty()) {
-				DataAccessRule rule = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.WRITE, role.getAuthority());
+				DataAccessRule rule = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.ADMIN, role.getAuthority());
 				dao.addRule(rule);
 				dao.storeRules();
 			}
