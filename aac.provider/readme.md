@@ -7,8 +7,8 @@ PREREQUISITES:
 
 2. Modify the following files:
 
-- ...\geoserver\src\community\pom.xml
-  - Add this profile:
+	- ...\geoserver\src\community\pom.xml
+      - Add this profile:
 ```
 <profile>
   <id>oauth2-aac</id>
@@ -19,8 +19,8 @@ PREREQUISITES:
 </profile>
 ```
 
-- ...\geoserver\src\web\app\pom.xml
-  - Add this profile:
+	- ...\geoserver\src\web\app\pom.xml
+      - Add this profile:
 ```
 <profile>
   <id>oauth2-aac</id>
@@ -38,8 +38,8 @@ PREREQUISITES:
   </dependencies>
 </profile>
 ```
-- ...\geoserver\src\community\security\pom.xml
-  - Add this profile:
+	- ...\geoserver\src\community\security\pom.xml
+      - Add this profile:
 ```
   <profile>
     <id>oauth2-aac</id>
@@ -81,15 +81,16 @@ PREREQUISITES:
 Import in Eclipse as "General -> Existing projects into workspace", with /geoserver as root directory.
 
 6. Run gs-web-app/src/test/java/org.geoserver.web/Start.java to start the web interface
+
 NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, e.g. adding the VM argument `-Djetty.port=<free_port>` in the run configurations in Eclipse
 
-7. Create a provider on AAC:
-	- Log into AAC as admin (http://localhost:8080/aac/login), go to "Admin" tab and create a new provider (use the email of an already registered user or register a new one beforehand); the default domain name is "sco.geoserver"
-	- Log into WSO2 store (https://localhost:9443/store/) as the provider, enter the new domain and create a new application (e.g. "Geoserver")
+7. Create a provider (tenant) on AAC:
+	- Log in to AAC as admin (http://localhost:8080/aac/login), go to "Admin" tab and create a new provider (use the email of an already registered user or register a new one beforehand); the default domain name is "sco.geoserver"
+	- Log in to WSO2 store (https://localhost:9443/store/) as the provider, enter the new domain and create a new application (e.g. "Geoserver")
 	- Generate production keys for the new application and add the following callback URLs:
 `http://localhost:10000/geoserver,http://localhost:10000/geoserver/`
 	- Enter "carbon.super" domain and subscribe to AAC and AACRoles APIs with the new application
-	- Log into AAC as the provider, click on the client app you just created, enter "Settings" tab and select the following options:
+	- Log in to AAC as the provider, click on the client app you just created, enter "Settings" tab and select the following options:
 	  - Grant types: authorization code, password, client credentials, refresh token, native
 	  - Enabled identity providers: internal (you will have to log in as admin and approve these settings from the "Admin" tab)
 	- Enter "API Access" tab and select the following options:
@@ -97,10 +98,44 @@ NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, 
 	  - Role management service: user.roles.me, user.roles.write, user.roles.read, user.roles.read.all, client.roles.read.all
 
 8. Configure authentication filter on Geoserver:
-	- log into Geoserver web interface as "admin" with password "geoserver"
+	- log in to Geoserver web interface as "admin" with password "geoserver"
 	- navigate to Security -> Authentication
 	- Under "Authentication Filters" section click "Add new"
 	- Click "AAC OAuth2", fill in the missing fields (Name, Client ID, Client Secret), select "User group service - default" as role source
-	NOTE: the API Manager domain must be the same domain name you created in AAC, if you did not use "sco.geoserver"
+	
+	NOTE: the API Manager domain must be the same domain name you created in AAC, if you did not use "sco.geoserver", and the role prefix is the prefix that will be used to create the AAC role for workspace owners
 	- Under "Filter Chains" section, add AAC filter for chains web, rest, gwc and default (click on chain name and add filter, always leave "anonymous" as last")
 	- Save and log out
+
+************************************************************************
+
+LOGGING IN TO GEOSERVER AS OWNER OF A WORKSPACE IN sco.geoserver DOMAIN
+
+Prerequisites:
+- the user must be registered on AAC
+- the user must be assigned an AAC role with the syntax `<prefix><workspace_name>`, e.g. "geo_myWS" (by now this role is not assigned programmatically)
+
+
+Procedure on Geoserver (retrieval/creation of workspace and its associated policy):
+- When the user logs in to Geoserver via AAC and has role `<prefix><workspace_name>`, the authentication filter:
+  - checks if the workspace and the associated namespace exist in the catalog, otherwise they are created (by now the namespace has a dummy URI)
+  - checks that the role `OWNER_<workspace_name>` exists within the active role service, otherwise it is created
+  - grants admin privileges on the workspace to the Geoserver role `OWNER_<workspace_name>`
+
+Operations available for the authenticated user:
+- CATALOG MODE = HIDE (default)
+  - view and edit only workspace owned
+  - view, add, edit and remove stores in workspace owned
+  - view, add, edit and remove layers and layer groups in workspace owned
+  - view, add, edit and remove styles in workspace owned
+- CATALOG MODE = MIXED
+  - view and edit only workspace owned
+  - view, add, edit and remove stores in workspace owned
+  - view, add, edit and remove layers and layer groups in workspace owned
+  - view, add, edit and remove styles in workspace owned
+- CATALOG MODE = CHALLENGE
+  - view and edit all workspaces
+  - view, add, edit and remove stores in any workspace
+  - view, add, edit and remove layers and layer groups in any workspace
+  - view global styles (read-only) and styles in workspace owned (not other workspaces')
+  - add, edit or remove styles in workspace owned
