@@ -21,7 +21,9 @@ import okhttp3.Response;
 public class Importer {
 
     private static final String path = "/home/albana/Desktop/www/";
-    private static final String urlGeoserver = "http://localhost:8080/geoserver/";
+    private static final String urlGeoserver = "http://localhost:9090/geoserver/";
+    private static final String sourceFile = "ti1.json";
+
     private static final String urlGeoserverImportRest = "rest/imports";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     static OkHttpClient client;
@@ -36,7 +38,6 @@ public class Importer {
         JSONParser parser = new JSONParser();
         JSONArray object = null;
         String path = Importer.path;
-        String sourceFile = "ti1.json";
         String geoJSONFile = type + ".geojson";
 
         try {
@@ -62,7 +63,7 @@ public class Importer {
                 }
                 String validity = (String) jobj.get("changedValidity");
                 System.out.println("Name: " + nameTracking);
-                if (!nameTracking.equals(type))
+                if (!nameTracking.equals(type) && type != "all")
                     continue;
 
                 JSONObject objProperties = new JSONObject();

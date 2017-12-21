@@ -22,7 +22,7 @@ In examples/openlayers/config.js there are other url being used for integration 
     Api Url for executing post requests to wps: wpsUrlExecute =    wso2Url+'/geoserver_wps/1.0.0/execute';
     Authorization token: auth_token_wso2='Bearer '+'4f42ff1d-faf3-3d3b-9a07-efd001e38c5d';
     
-    Name of the woekspace: var workspace='topp';
+    Name of the workspace: var workspace='topp';
     Name of the SLD: var sldName='play_ti';
 
 ## General Examples

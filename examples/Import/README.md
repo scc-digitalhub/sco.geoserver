@@ -12,10 +12,12 @@ The steps to upload and visualize the data into Geoserver are:
 Prerequisites:
 
 
-    1. install the gdal-bin package:  apt install gdal-bin
-    2. start Geoserver with WPS extention enabled mvn clean install -DskipTests -P wps
+    1. install the gdal-bin package:  					apt install gdal-bin
+    2. start Geoserver with WPS extention enabled: 	mvn clean install -DskipTests -P wps
 
-In order to use it will be necessary to change the following parameters:
+In order to use it will be necessary to change the following parameters in Importer.java class:
 
     private static final String path = "path_to_the_source_file/";
     private static final String urlGeoserver = "http://localhost:8080/geoserver/";
+    private static final String sourceFile = "ti1.json";
+    
