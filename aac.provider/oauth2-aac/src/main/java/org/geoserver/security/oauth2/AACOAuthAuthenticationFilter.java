@@ -30,6 +30,8 @@ import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.security.AccessMode;
 import org.geoserver.security.GeoServerRoleService;
 import org.geoserver.security.GeoServerRoleStore;
+import org.geoserver.security.GeoServerUserGroupService;
+import org.geoserver.security.GeoServerUserGroupStore;
 import org.geoserver.security.config.SecurityNamedServiceConfig;
 import org.geoserver.security.impl.DataAccessRule;
 import org.geoserver.security.impl.DataAccessRuleDAO;
@@ -37,6 +39,7 @@ import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
 import org.geoserver.security.impl.RoleCalculator;
 import org.geoserver.security.password.GeoServerPBEPasswordEncoder;
+import org.geoserver.security.validation.PasswordPolicyException;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -155,6 +158,12 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
         return null;
     }
     
+	/**
+	 * Get mapped Geoserver roles for AAC user.
+	 * @param request
+	 * @param principal
+	 * @return Collection<GeoServerRole>
+	 */
     @Override
     protected Collection<GeoServerRole> getRoles(HttpServletRequest request, String principal) throws IOException {
     	Collection<GeoServerRole> gsRoles = new ArrayList<GeoServerRole>();
@@ -182,27 +191,20 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     			for (AACRole role : roles) {
     				log += String.format("[role: %s, scope: %s, context: %s] ", role.getRole(), role.getScope(), role.getContext());
         		}
-                LOGGER.fine("AAC roles for user: " + log);
+    			LOGGER.fine("AAC roles for user " + principal + ": " + log);
             }
-    		
+    		    		
     		for (AACRole role : roles) {
-    			//normal user
-    			if (role.getRole().equals(AACRole.USER) && roles.size() == 1) {
-    				break;
-    			}
     			//user is the provider of sco.geoserver
-    			if (role.getRole().equals(AACRole.PROVIDER) && role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())) {
+    			//role.getRole().equals(AACRole.PROVIDER) && role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())
+    			if (role.isProviderOf(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())) {
     				SortedSet<GeoServerRole> providerRoles = getScoProviderRoles(principal);
     				for (GeoServerRole providerRole : providerRoles) {
     					gsRoles.add(providerRole);
 					}
-    				createUser(principal);
-    				//gsRoles.add(GeoServerRole.ADMIN_ROLE);
     					
-    			} else if (role.getRole().startsWith(((AACOAuth2FilterConfig) filterConfig).getRolePrefix())
-    					&& role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())
-    					&& role.getScope().equalsIgnoreCase(AACRole.RoleScope.APPLICATION.toString())) {
-    				//user is the owner of a workspace in sco.geoserver
+    			} else if (role.isWorkspaceOwner(((AACOAuth2FilterConfig) filterConfig).getRolePrefix(), ((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())) {
+    				//user is the owner of a workspace in the API Manager domain
     				String wsName = role.getRole().substring(((AACOAuth2FilterConfig) filterConfig).getRolePrefix().length());
     				
     				if(getWorkspace(wsName) != null) {
@@ -210,11 +212,11 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     					if(wsOwner != null) {
     						setPolicy(wsOwner, wsName);
     						gsRoles.add(wsOwner);
-						createUser(principal);
     					}
     				}
     			}
     		}
+    		createUser(principal);
     	}
     	
     	if (LOGGER.isLoggable(Level.FINE)) {
@@ -224,9 +226,9 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     }
     
     /**
-     * 
-     * @param role
-     * @param workspaceName
+     * Set policy for a given workspace, providing admin access to the given role.
+     * @param role role that is granted admin privileges over the workspace
+     * @param workspaceName name of the workspace
      */
     private void setPolicy(GeoServerRole role, String workspaceName) {
     	try {
@@ -236,7 +238,8 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 				DataAccessRule rule = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.ADMIN, role.getAuthority());
 				dao.addRule(rule);
 				dao.storeRules();
-			DataAccessRule ruleRead = new DataAccessRule(workspaceName, DataAccessRule.ANY,
+				//TODO is ruleRead necessary? the role has already admin privileges, read and write should be implicit
+				DataAccessRule ruleRead = new DataAccessRule(workspaceName, DataAccessRule.ANY,
                         AccessMode.READ, role.getAuthority());
 		        dao.addRule(ruleRead);
 		        dao.storeRules();
@@ -464,11 +467,12 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
         }
     }
 
-private static class AACRole {
+    private static class AACRole {
 		//{"id": 21,"scope": "system","role": "ROLE_ADMIN","context": null,"authority": "ROLE_ADMIN"}
 		//{"id": 21,"scope": "system","role": "ROLE_USER","context": null,"authority": "ROLE__USER"}
 		//{"id": 21,"scope": "tenant","role": "ROLE_PROVIDER","context": "sco.geoserver","authority": "ROLE_PROVIDER"}
-		private int id;
+    	//{"id": 21,"scope": "application","role": "geo_test","context": "sco.geoserver","authority": "geo_test"}
+    	private int id;
 		private String scope;
 		private String role;
 		private String context;
@@ -477,6 +481,34 @@ private static class AACRole {
 		private static final String USER = "ROLE_USER";
 		public enum RoleScope {
 			SYSTEM, APPLICATION, TENANT, USER
+		}
+		
+		/**
+		 * Check whether this AACRole is provider of the given domain.
+		 * @param domain API Manager domain
+		 * @return
+		 */
+		public boolean isProviderOf(String domain) {
+			boolean res = false;
+			if (this.getRole().equals(PROVIDER) && this.getContext() != null && this.getContext().equals(domain))
+				res = true;
+			return res;
+		}
+		
+		/**
+		 * Check whether this AACRole is owner of a workspace in the given domain.
+		 * @return
+		 */
+		 /* role.getRole().startsWith(((AACOAuth2FilterConfig) filterConfig).getRolePrefix())
+		&& role.getContext() != null && role.getContext().equals(((AACOAuth2FilterConfig) filterConfig).getApiManagerDomain())
+		&& role.getScope().equalsIgnoreCase(AACRole.RoleScope.APPLICATION.toString())
+		  */
+		public boolean isWorkspaceOwner(String prefix, String domain) {
+			boolean res = false;
+			if (this.getRole().startsWith(prefix) && this.getContext() != null && this.getContext().equals(domain)
+					&& this.getScope().equalsIgnoreCase(RoleScope.APPLICATION.toString()))
+				res = true;
+			return res;
 		}
 		
 		public int getId() {
