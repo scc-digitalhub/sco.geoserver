@@ -19,7 +19,7 @@ public class AACUserAuthenticationConverter extends DefaultUserAuthenticationCon
 	/* google version:
     private static Object USERNAME_KEY = USERNAME; //"user_name"
     */
-    private static Object USERNAME_KEY = "userId";
+    private static Object USERNAME_KEY = "username";
 
     /**
      * Default Constructor.

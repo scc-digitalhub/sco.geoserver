@@ -96,6 +96,7 @@ NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, 
 	- Enter "API Access" tab and select the following options:
 	  - Basic profile service: profile.basicprofile.me
 	  - Role management service: user.roles.me, user.roles.write, user.roles.read, user.roles.read.all, client.roles.read.all
+        - In order to create simple non provider users it is necessary to sign up to AAC and enter a new email and password.
 
 8. Configure authentication filter on Geoserver:
 	- log in to Geoserver web interface as "admin" with password "geoserver"
@@ -118,8 +119,10 @@ Prerequisites:
 
 Procedure on Geoserver (retrieval/creation of workspace and its associated policy):
 - When the user logs in to Geoserver via AAC and has role `<prefix><workspace_name>`, the authentication filter:
-  - checks if the workspace and the associated namespace exist in the catalog, otherwise they are created (by now the namespace has a dummy URI)
+  - checks if the workspace and the associated namespace exist in the catalog, otherwise they are created 
+	(copy file namespace.properties and move it to directory geoserver/src/main/src/main/resources/namespace.properties)
   - checks that the role `OWNER_<workspace_name>` exists within the active role service, otherwise it is created
+  - checks if the AAC user exists within the active User Group Services , otherwise it is going to be created
   - grants admin privileges on the workspace to the Geoserver role `OWNER_<workspace_name>`
 
 Operations available for the authenticated user:

@@ -71,7 +71,7 @@ public class AACTokenServices extends GeoServerOAuthRemoteTokenServices {
     private void transformNonStandardValuesToStandardValues(Map<String, Object> map) {
         LOGGER.debug("Original map = " + map);
         map.put("client_id", map.get("clientId"));
-        map.put("user_name", map.get("userId"));
+        map.put("user_name", map.get("username"));
         LOGGER.debug("Transformed = " + map);
     }
 

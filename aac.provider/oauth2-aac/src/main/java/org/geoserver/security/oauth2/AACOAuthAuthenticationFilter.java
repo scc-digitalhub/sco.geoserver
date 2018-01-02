@@ -196,6 +196,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     				for (GeoServerRole providerRole : providerRoles) {
     					gsRoles.add(providerRole);
 					}
+    				createUser(principal);
     				//gsRoles.add(GeoServerRole.ADMIN_ROLE);
     					
     			} else if (role.getRole().startsWith(((AACOAuth2FilterConfig) filterConfig).getRolePrefix())
@@ -209,6 +210,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     					if(wsOwner != null) {
     						setPolicy(wsOwner, wsName);
     						gsRoles.add(wsOwner);
+						createUser(principal);
     					}
     				}
     			}
@@ -234,6 +236,10 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 				DataAccessRule rule = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.ADMIN, role.getAuthority());
 				dao.addRule(rule);
 				dao.storeRules();
+			DataAccessRule ruleRead = new DataAccessRule(workspaceName, DataAccessRule.ANY,
+                        AccessMode.READ, role.getAuthority());
+		        dao.addRule(ruleRead);
+		        dao.storeRules();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -419,7 +425,46 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 		*/
     }
 
-	private static class AACRole {
+	/**
+     * Create GeoServer User if it doesn't already exist
+     * 
+     * @param username
+     * @return
+     **/
+
+    private void createUser(String username) {
+        try {
+
+            String gsname = getUserGroupServiceName();
+            GeoServerUserGroupService service = getSecurityManager().loadUserGroupService(gsname);
+            GeoServerUser u = service.getUserByUsername(username);
+
+            if (u == null) {
+                GeoServerUserGroupStore ugstore = service.createStore();
+                ugstore.load();
+                GeoServerUser u1 = ugstore.createUserObject(username, "passwd1", true);
+                ugstore.addUser(u1);
+                ugstore.store();
+            }
+        } catch (IOException ex) {
+            try {
+                throw ex;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } catch (PasswordPolicyException ex) {
+            ;
+            try {
+                throw ex;
+            } catch (PasswordPolicyException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+private static class AACRole {
 		//{"id": 21,"scope": "system","role": "ROLE_ADMIN","context": null,"authority": "ROLE_ADMIN"}
 		//{"id": 21,"scope": "system","role": "ROLE_USER","context": null,"authority": "ROLE__USER"}
 		//{"id": 21,"scope": "tenant","role": "ROLE_PROVIDER","context": "sco.geoserver","authority": "ROLE_PROVIDER"}
