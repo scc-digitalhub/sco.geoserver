@@ -1,0 +1,156 @@
+swagger: '2.0'
+paths:
+  /GetCapabilities:
+    get:
+      responses:
+        '200':
+          description: ''
+      description: >-
+        The GetCapabilities operation requests details of the service offering,
+        including service metadata and metadata describing the available
+        processes. The response is an XML document called the capabilities
+        document.
+      summary: >-
+        The GetCapabilities operation requests details of the service offering,
+        including service metadata and metadata describing the available
+        processes. The response is an XML document called the capabilities
+        document.Describes the available processes
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WPS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service version—Value is the current version number
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is GetCapabilities
+  /DescribeProcess:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        The DescribeProcess operation requests a description of a WPS process
+        available through the service.
+      description: >-
+        The DescribeProcess operation requests a description of a WPS process
+        available through the service.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WPS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service version—Value is the current version number
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is DescribeProcess
+        - name: identifier
+          in: query
+          required: true
+          type: string
+          description: 'The name of the process , ex : JTS:buffer'
+  /Execute:
+    post:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: Payload
+          description: Request Body
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+          type: text/xml
+      summary: >-
+        The Execute operation is a request to perform the process with specified
+        input values and required output data items.
+      description: >-
+        The inputs and outputs required for the request depend on the process
+        being executed. GeoServer provides a wide variety of processes to
+        process geometry, features, and coverage data. For more information see
+        the section 
+  /GetExecutionStatus:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: Pseudo Process that get the state of the  running process
+      description: >-
+        According to the WPS specification, an asynchronous process execution
+        returns a back link to a status location that the client can ping to get
+        progress report about the process, and eventually retrieve its final
+        results.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WPS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service version—Value is the current version number
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name -- Value is GetExecutionStatus
+        - name: executionId
+          in: query
+          required: true
+          type: string
+          description: >-
+            The executionId identifies the running request, and can be used in a
+            the Dismiss vendor operation in order to cancel the execution of the
+            process.
+  /Dismiss:
+    get:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WPS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service version—Value is the current version number
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name -- Value is Dismiss
+        - name: executionId
+          in: query
+          required: true
+          type: string
+          description: >-
+            The executionId identifies the running request, and can be used in a
+            the Dismiss vendor operation in order to cancel the execution of the
+            process.
+info:
+  title: GeoServerWPS
+  version: 1.0.0

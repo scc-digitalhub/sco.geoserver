@@ -1,0 +1,398 @@
+swagger: '2.0'
+paths:
+  /GetCapabilities:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        Generates a metadata document describing a WFS service provided by
+        server as well as valid WFS operations and parameters
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“1.1.0”, “1.0.0”), not the
+            abbreviated form (“1” or “1.1”).
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is GetCapabilities
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /DescribeFeatureType:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: Returns a description of feature types supported by a WFS service
+      description: >-
+        DescribeFeatureType requests information about an individual feature
+        type before requesting the actual data. Specifically, the operation will
+        request a list of features and attributes for the given feature type, or
+        list the feature types available.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service version—Value is the current version number
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is DescribeFeatureType
+        - name: typeNames
+          in: query
+          required: true
+          type: string
+          description: >-
+            Name of the feature type to describe (typeName for WFS 1.1.0 and
+            earlier)
+        - name: exceptions
+          in: query
+          required: false
+          type: string
+          description: "\tFormat for reporting exceptions—default value is application/vnd.ogc.se_xml"
+        - name: outputFormat
+          in: query
+          required: false
+          type: string
+          description: "\tDefines the scheme description language used to describe feature types"
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /GetFeature:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        Returns a selection of features from a data source including geometry
+        and attribute values
+      description: >-
+        The GetFeature operation returns a selection of features from the data
+        source.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service version—Value is the current version number
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: "\tOperation name—Value is GetFeature"
+        - name: typeNames
+          in: query
+          required: true
+          type: string
+          description: "\tName of the feature type "
+        - name: featureID
+          in: query
+          required: false
+          type: string
+          description: ID of a specific feature
+        - name: count or maxFeatures
+          in: query
+          required: false
+          type: string
+          description: Limit the  amount of features returned
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          description: Sort the returned selection based on an attribute value
+        - name: propertyName
+          in: query
+          required: false
+          type: string
+          description: >-
+            To search for a single attribute in all features. You can specify a
+            single attribute, or multiple attributes separated by commas
+        - name: bbox
+          in: query
+          required: false
+          type: string
+          description: >-
+            Allows you to search for features that are contained (or partially
+            contained) inside a box of user-defined coordinates
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /LockFeature:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: Prevents a feature from being edited through a persistent feature lock
+      description: >-
+        A LockFeature operation provides a long-term feature locking mechanism
+        to ensure consistency in edit transactions. If one client fetches a
+        feature and makes some changes before submitting it back to the WFS,
+        locks prevent other clients from making any changes to the same feature,
+        ensuring a transaction that can be serialized. If a WFS server supports
+        this operation, it will be reported in the server’s GetCapabilities
+        response.
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /Transaction:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: "\tEdits existing feature types by creating, updating, and deleting"
+      description: >-
+        The Transaction operation can create, modify, and delete features
+        published by a WFS. Each transaction will consist of zero or more
+        Insert, Update, and Delete elements, with each transaction element
+        performed in order. Every GeoServer transaction is atomic, meaning that
+        if any of the elements fail, the transaction is abandoned and the data
+        is unaltered. A WFS server that supports transactions is sometimes known
+        as a WFS-T server. GeoServer fully supports transactions.
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /GetGMLObject:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        This operation is valid for WFS version 1.1.0 only.Retrieves features
+        and elements by ID from a WFS
+      description: >-
+        A GetGMLObject operation accepts the identifier of a GML object (feature
+        or geometry) and returns that object. This operation is relevant only in
+        situations that require Complex Features by allowing clients to extract
+        just a portion of the nested properties of a complex feature
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /GetPropertyValue:
+    get:
+      responses:
+        '200':
+          description: ''
+      description: >-
+        A GetPropertyValue operation retrieves the value of a feature property,
+        or part of the value of a complex feature property, from a data source
+        for a given set of features identified by a query.
+      summary: >-
+        This operation is valid for WFS version 2.0.0 only.Retrieves the value
+        of a feature property or part of the value of a complex feature property
+        from the data store for a set of features identified using a query
+        expression
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /GetFeatureWithLock:
+    post:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: Payload
+          description: Request Body
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+          type: application/xml
+      summary: >-
+        This operation is valid for WFS version 2.0.0 only.Returns a selection
+        of features and also applies a lock on those features
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /CreateStoredQuery:
+    post:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: Payload
+          description: Request Body
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+          type: application/xml
+      summary: >-
+        This operation is valid for WFS version 2.0.0 only.Create a stored query
+        on the WFS server
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /DropStoredQuery:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        This operation is valid for WFS version 2.0.0 only.Deletes a stored
+        query from the WFS server
+      parameters:
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is DropStoredQuery
+        - name: storedQuery_Id
+          in: query
+          required: true
+          type: string
+          description: ID of the stored Query
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+    post:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: Payload
+          description: Request Body
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+          type: application/xml
+      produces:
+        - ''
+      summary: >-
+        This operation is valid for WFS version 2.0.0 only.Deletes a stored
+        query from the WFS server
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /ListStoredQueries:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        This operation is valid for WFS version 2.0.0 only.Returns a list of the
+        stored queries on a WFS server
+      description: >-
+        A ListStoredQueries operation returns a list of the stored queries
+        currently maintained by the WFS server.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WFS
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is ListStoredQueries
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+    post:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: Payload
+          description: Request Body
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+          type: application/xml
+      summary: "\tThis operation is valid for WFS version 2.0.0 only.Returns a list of the stored queries on a WFS server"
+      description: "This operation is valid for WFS version 2.0.0 only.Returns a list of the stored queries on a WFS server\t\n"
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /DescribeStoredQueries:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: "\tReturns a metadata document describing the stored queries on a WFS server"
+      description: >-
+        A DescribeStoredQuery operation returns detailed metadata about each
+        stored query maintained by the WFS server. A description of an
+        individual query may be requested by providing the ID of the specific
+        query. If no ID is provided, all queries are described.
+      parameters:
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is DescribeStoredQueries
+        - name: storedQuery_Id
+          in: query
+          required: true
+          type: string
+          description: Existing stored query ID
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+    post:
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - name: Payload
+          description: Request Body
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              payload:
+                type: string
+          type: application/xml
+      summary: >-
+        Returns a metadata document describing the stored queries on a WFS
+        server
+      description: >-
+        A DescribeStoredQuery operation returns detailed metadata about each
+        stored query maintained by the WFS server. A description of an
+        individual query may be requested by providing the ID of the specific
+        query. If no ID is provided, all queries are described.
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+info:
+  title: GeoServerWFS
+  version: 1.0.0

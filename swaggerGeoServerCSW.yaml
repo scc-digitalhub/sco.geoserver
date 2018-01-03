@@ -1,0 +1,198 @@
+swagger: '2.0'
+paths:
+  /GetCapabilities:
+    get:
+      responses:
+        '200':
+          description: ''
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      summary: >-
+        Generates a metadata document describing the  Catalog Services For The
+        Web
+      description: >-
+        Generates a metadata document describing the  Catalog Services For The
+        Web
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is CSW
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“2.0”, “2.0.2”), not the
+            abbreviated form (“2” or “2.2”).
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is GetCapabilities
+  /GetRecords:
+    get:
+      responses:
+        '200':
+          description: ''
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      summary: Query all layers
+      description: Query all layers
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is CSW
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“2.0”, “2.0.2”), not the
+            abbreviated form (“2” or “2.2”).
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is GetRecords
+        - name: typeNames
+          in: query
+          required: false
+          type: string
+          description: 'example: gmd:MD_Metadata'
+        - name: resultType
+          in: query
+          required: false
+          type: string
+        - name: elementSetName
+          in: query
+          required: false
+          type: string
+        - name: outputSchema
+          in: query
+          required: false
+          type: string
+  /GetRecordById:
+    get:
+      responses:
+        '200':
+          description: ''
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      summary: Request a particular layer by ID
+      description: Request a particular layer by ID
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is CSW
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“2.0”, “2.0.2”), not the
+            abbreviated form (“2” or “2.2”).
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is GetRecordById
+        - name: typeNames
+          in: query
+          required: false
+          type: string
+          description: 'example: gmd:MD_Metadata'
+        - name: resultType
+          in: query
+          required: false
+          type: string
+        - name: elementSetName
+          in: query
+          required: false
+          type: string
+        - name: outputSchema
+          in: query
+          required: false
+          type: string
+        - name: id
+          in: query
+          required: false
+          type: string
+          description: 'Id of the layer '
+  /GetDomain:
+    get:
+      responses:
+        '200':
+          description: ''
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is CSW
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“2.0”, “2.0.2”), not the
+            abbreviated form (“2” or “2.2”).
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: Operation name—Value is GetDomain
+        - name: propertyName
+          in: query
+          required: false
+          type: string
+          description: Retrieve all values of specific parameter
+      summary: Request the domain of a property.
+      description: Request the domain of a property.
+  /DescribeRecord:
+    get:
+      responses:
+        '200':
+          description: ''
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      summary: Request a description of our Metadata record
+      description: Request a description of our Metadata record
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is CSW
+        - name: version
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“2.0”, “2.0.2”), not the
+            abbreviated form (“2” or “2.2”).
+        - name: request
+          in: query
+          required: true
+          type: string
+          description: "\tOperation name—Value is DescribeRecord"
+        - name: typeName
+          in: query
+          required: true
+          type: string
+          description: Metadata record
+info:
+  title: GeoServerCSW
+  version: 1.0.0

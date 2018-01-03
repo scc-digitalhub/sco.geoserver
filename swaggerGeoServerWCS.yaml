@@ -1,0 +1,69 @@
+swagger: '2.0'
+paths:
+  /GetCapabilities:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        Retrieves a list of the server’s data, as well as valid WCS operations
+        and parameters
+      description: >-
+        The GetCapabilities operation is a request to a WCS server for a list of
+        what operations and services (“capabilities”) are being offered by that
+        server.
+      parameters:
+        - name: service
+          in: query
+          required: true
+          type: string
+          description: Service name—Value is WCS
+        - name: AcceptVersions
+          in: query
+          required: true
+          type: string
+          description: >-
+            Service version—Value is the current version number. The full
+            version number must be supplied (“1.1.0”, “1.0.0”), not the
+            abbreviated form (“1” or “1.1”).
+        - name: request
+          in: query
+          required: false
+          type: string
+          description: "\tOperation name—Value is GetCapabilities"
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /DescribeCoverage:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: Retrieves an XML document that fully describes the request coverages.
+      description: >-
+        The purpose of the DescribeCoverage request is to additional information
+        about a Coverage a client wants to query. It returns information about
+        the crs, the metadata, the domain, the range and the formats it is
+        available in. A client generally will need to issue a DescribeCoverage
+        request before being sure it can make the proper GetCoverage request.
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+  /GetCoverage:
+    get:
+      responses:
+        '200':
+          description: ''
+      summary: >-
+        Returns a coverage in a well known format. Like a WMS GetMap request,
+        but with several extensions to support the retrieval of coverages.
+      description: >-
+        The GetCoverage operation requests the actual spatial data. It can
+        retrieve subsets of coverages, and the result can be either the coverage
+        itself or a reference to it. The most powerful thing about a GetCoverage
+        request is its ability to subset domains (height and time) and ranges.
+        It can also do resampling, encode in different data formats, and return
+        the resulting file in different ways.
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+info:
+  title: GeoServerWCS
+  version: 1.0.0
