@@ -226,7 +226,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     }
     
     /**
-     * Set policy for a given workspace, providing admin access to the given role.
+     * Set policy for a given workspace, providing admin access (which includes also read and write) to the given role.
      * @param role role that is granted admin privileges over the workspace
      * @param workspaceName name of the workspace
      */
@@ -235,14 +235,11 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 			DataAccessRuleDAO dao = getSecurityManager().getApplicationContext().getBean(DataAccessRuleDAO.class);
 			SortedSet<DataAccessRule> rules = dao.getRulesAssociatedWithRole(role.getAuthority());
 			if(rules.isEmpty()) {
-				DataAccessRule rule = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.ADMIN, role.getAuthority());
-				dao.addRule(rule);
+				DataAccessRule ruleAdmin = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.ADMIN, role.getAuthority());
+				dao.addRule(ruleAdmin);
+				DataAccessRule ruleRead = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.READ, role.getAuthority());
+				dao.addRule(ruleRead);
 				dao.storeRules();
-				//TODO is ruleRead necessary? the role has already admin privileges, read and write should be implicit
-				DataAccessRule ruleRead = new DataAccessRule(workspaceName, DataAccessRule.ANY,
-                        AccessMode.READ, role.getAuthority());
-		        dao.addRule(ruleRead);
-		        dao.storeRules();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -372,60 +369,6 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 			e.printStackTrace();
 		}
 		return workspace;
-		
-		/*
-    	String apiUrl = "http://localhost:10000/geoserver/rest/workspaces";
-		HttpHeaders headers = new HttpHeaders();
-		try { //prepare authorization header
-			GeoServerUser admin = getSecurityManager().loadUserGroupService("default").getUserByUsername("admin");
-			String credentials = admin.getUsername() + ":";
-
-			if(getSecurityManager().checkForDefaultAdminPassword()) {
-				credentials += admin.DEFAULT_ADMIN_PASSWD;
-			}
-			else {
-				//TODO handle change of default password
-//				GeoServerPBEPasswordEncoder encoder = (GeoServerPBEPasswordEncoder)(getSecurityManager().loadPasswordEncoder("pbePasswordEncoder"));
-//				if (encoder != null) {
-//					credentials += encoder.decode(admin.getPassword()); //javax.crypto.BadPaddingException
-//				}
-			}
-			
-			System.out.println(credentials);
-			
-			String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
-			headers.set("Authorization", "Basic " + encodedCredentials);
-			
-			try { //try to get workspace
-				//TODO change WorkspaceInfoImpl to WorkspaceInfo and check that it works
-				ParameterizedTypeReference<WorkspaceInfoImpl> workspaceJson = new ParameterizedTypeReference<WorkspaceInfoImpl>() {};
-				WorkspaceInfoImpl workspace = oauth2RestTemplate.exchange(apiUrl+"/"+workspaceName, HttpMethod.GET, new HttpEntity<>(headers), workspaceJson).getBody();
-				if(workspace != null)
-					ret = true;
-			} catch (HttpClientErrorException e) {
-				if(e.getStatusCode() == HttpStatus.NOT_FOUND) { //workspace does not exist
-					try {
-						headers.setContentType(MediaType.APPLICATION_XML);
-						
-						String xmlTemplate = String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?><workspace><name>%s</name></workspace>", workspaceName);
-						
-						HttpEntity<String> entity = new HttpEntity<String>(xmlTemplate, headers);
-						ResponseEntity<String> wsInfo = oauth2RestTemplate.postForEntity(apiUrl, entity, String.class);
-						
-						if(wsInfo.getStatusCode() == HttpStatus.CREATED)
-							ret = true;
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (Exception e2) {
-			e2.printStackTrace();
-		}
-		return ret;
-		*/
     }
 
 	/**
@@ -453,7 +396,6 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
             try {
                 throw ex;
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         } catch (PasswordPolicyException ex) {
@@ -461,7 +403,6 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
             try {
                 throw ex;
             } catch (PasswordPolicyException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
