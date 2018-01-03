@@ -87,7 +87,7 @@ NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, 
 7. Create a provider (tenant) on AAC:
 	- Log in to AAC as admin (http://localhost:8080/aac/login), go to "Admin" tab and create a new provider (use the email of an already registered user or register a new one beforehand); the default domain name is "sco.geoserver"
 	- Log in to WSO2 store (https://localhost:9443/store/) as the provider, enter the new domain and create a new application (e.g. "Geoserver")
-	- Generate production keys for the new application and add the following callback URLs:
+	- Generate production keys for the new application and add the following callback URLs (with the port you are using for Geoserver):
 `http://localhost:10000/geoserver,http://localhost:10000/geoserver/`
 	- Enter "carbon.super" domain and subscribe to AAC and AACRoles APIs with the new application
 	- Log in to AAC as the provider, click on the client app you just created, enter "Settings" tab and select the following options:
@@ -119,11 +119,11 @@ Prerequisites:
 
 
 Procedure on Geoserver (retrieval/creation of workspace and its associated policy):
+- Copy the file `namespace.properties` under `/geoserver/src/main/src/main/resources/`, or create a new one and write there the URI you want to use for your namespace (e.g. `URI=http://www.openplans.org/`)
 - When the user logs in to Geoserver via AAC and has role `<prefix><workspace_name>`, the authentication filter:
-  - checks if the workspace and the associated namespace exist in the catalog, otherwise they are created 
-	(copy file namespace.properties and move it to directory geoserver/src/main/src/main/resources/namespace.properties)
+  - checks if the workspace and the associated namespace exist in the catalog, otherwise they are created
   - checks that the role `OWNER_<workspace_name>` exists within the active role service, otherwise it is created
-  - checks if the AAC user exists within the active User Group Services , otherwise it is going to be created
+  - checks if the AAC user exists within the active user/group service , otherwise it is created
   - grants admin privileges on the workspace to the Geoserver role `OWNER_<workspace_name>`
 
 Operations available for the authenticated user:
@@ -144,9 +144,11 @@ Operations available for the authenticated user:
   - view global styles (read-only) and styles in workspace owned (not other workspaces')
   - add, edit or remove styles in workspace owned
 
+NOTE: Due to a bug in Geoserver, non-admin users cannot properly create new stores within their workspaces.
+
 ************************************************************************
 
-CONFIGURING authkey MODULE FOR OGC SERVICES (http://docs.geoserver.org/stable/en/user/community/authkey/index.html)
+CONFIGURING `authkey` MODULE FOR OGC SERVICES (http://docs.geoserver.org/stable/en/user/community/authkey/index.html)
 
 1. Compile Geoserver with authkey extension enabled and build for Eclipse (leave also AAC enabled!):
 
@@ -178,4 +180,4 @@ You can test the filter with Postman:
   - open `mylayer` in OpenLayers format and copy the URL
   - prepare a GET request on Postman with the copied URL, removing the workspace name from it (e.g. `http://localhost:10000/geoserver/myworkspace/wms?service=...` should become `http://localhost:10000/geoserver/wms?service=...`)
   - add `authkey` to the list of parameters with the key value you generated on AAC and send the request (you can set `format` parameter to `image/png` for a better display)
-  - if bob@gmail.com can see the layer while bob@gmail.com gets an HTTP 404, the plugin works correctly
+  - if bob@gmail.com can see the layer while tom@gmail.com gets an HTTP 404, the plugin works correctly
