@@ -115,7 +115,7 @@ LOGGING IN TO GEOSERVER AS OWNER OF A WORKSPACE IN sco.geoserver DOMAIN
 
 Prerequisites:
 - the user must be registered on AAC
-- the user must be assigned an AAC role with the syntax `<prefix><workspace_name>`, e.g. "geo_myWS" (by now this role is not assigned programmatically)
+- the user must be assigned an AAC role with the syntax `<prefix><workspace_name>`, e.g. "geo_myWS" (by now this role is not assigned programmatically but must be created by the provider via AACRoles API)
 
 
 Procedure on Geoserver (retrieval/creation of workspace and its associated policy):
@@ -172,12 +172,12 @@ CONFIGURING `authkey` MODULE FOR OGC SERVICES (http://docs.geoserver.org/stable/
 	- Save and log out
 
 You can test the filter with Postman:
-- Be sure to have at least two different AAC users and a layer with different access rules for certain roles (rules are set under Security -> Data)
+- You need two different AAC users and a layer with different access rules for certain roles (rules are set under Security -> Data)
   - e.g.: user bob@gmail.com has role GEOSERVER_ROLE1, user tom@gmail.com has role GEOSERVER_ROLE2 and the following access rule is set: `myworkspace.mylayer.r` to role GEOSERVER_ROLE1
-- Generate the key for those users on AAC: log in to AAC as each user, click on the application name, navigate to "API Keys" and click "New API Key"
+- Generate the key for those users on AAC: log in to AAC as each user, select an application (if there is no application, you need to generate production keys for it on WSO2 store), navigate to "API Keys" and click "New API Key"
 - To check that only users with role GEOSERVER_ROLE1 have read access to `mylayer`:
   - navigate to "Layer Preview"
   - open `mylayer` in OpenLayers format and copy the URL
-  - prepare a GET request on Postman with the copied URL, removing the workspace name from it (e.g. `http://localhost:10000/geoserver/myworkspace/wms?service=...` should become `http://localhost:10000/geoserver/wms?service=...`)
+  - prepare a GET request on Postman with the copied URL
   - add `authkey` to the list of parameters with the key value you generated on AAC and send the request (you can set `format` parameter to `image/png` for a better display)
   - if bob@gmail.com can see the layer while tom@gmail.com gets an HTTP 404, the plugin works correctly
