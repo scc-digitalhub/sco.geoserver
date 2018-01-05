@@ -80,7 +80,8 @@ PREREQUISITES:
 	
 Import in Eclipse as "General -> Existing projects into workspace", with /geoserver as root directory.
 
-6. Run gs-web-app/src/test/java/org.geoserver.web/Start.java to start the web interface
+6. Run gs-web-app/src/test/java/org.geoserver.web/Start.java to start the web interface 
+   (from command-line use the commands: cd geoserver_2.0.x/src/web/app   mvn jetty:run -Dhttp.port=1000  to start geoserver at port 1000)
 
 NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, e.g. adding the VM argument `-Djetty.port=<free_port>` in the run configurations in Eclipse
 
