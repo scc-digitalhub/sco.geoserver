@@ -70,13 +70,13 @@ PREREQUISITES:
 
 `cd geoserver/src`
 
-`mvn clean install -DskipTests -P oauth2-aac`
+`mvn -DskipTests clean install -P wps,csw,oauth2-aac,authkey`
 
 5. Build for Eclipse with extension enabled:
 
 `cd geoserver/src`
 
-`mvn eclipse:eclipse -P oauth2-aac`
+`mvn eclipse:eclipse -P wps,csw,oauth2-aac,authkey`
 	
 Import in Eclipse as "General -> Existing projects into workspace", with /geoserver as root directory.
 
