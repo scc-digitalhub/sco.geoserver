@@ -3,7 +3,7 @@ PREREQUISITES:
 - AAC
 
 
-1. Clone sco.geoserver placing it under ...\geoserver\src\community\security
+1. Clone sco.geoserver and copy the folder aac.provider/oauth2-aac placing it under ...\geoserver\src\community\security
 
 2. Modify the following files:
 
@@ -14,7 +14,7 @@ PREREQUISITES:
   <id>oauth2-aac</id>
   <modules>
     <module>security/oauth2</module>
-    <module>security/sco.geoserver/aac.provider/oauth2-aac</module>
+    <module>security/oauth2-aac</module>
   </modules>
 </profile>
 ```
@@ -45,7 +45,7 @@ PREREQUISITES:
     <id>oauth2-aac</id>
     <modules>
       <module>oauth2</module>
-      <module>sco.geoserver/aac.provider/oauth2-aac</module>
+      <module>oauth2-aac</module>
     </modules>
   </profile>
 ```
