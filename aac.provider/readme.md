@@ -1,5 +1,8 @@
 PREREQUISITES:
 - Geoserver (https://github.com/geoserver/geoserver/tree/2.12.1)
+`git clone https://github.com/geoserver/geoserver.git`
+`cd geoserver`
+`git checkout 2.12.1`
 - AAC
 
 
@@ -9,6 +12,7 @@ PREREQUISITES:
 
 	- ...\geoserver\src\community\pom.xml
       - Add this profile:
+
 ```
 <profile>
   <id>oauth2-aac</id>
@@ -21,6 +25,7 @@ PREREQUISITES:
 
 	- ...\geoserver\src\web\app\pom.xml
       - Add this profile:
+
 ```
 <profile>
   <id>oauth2-aac</id>
@@ -40,14 +45,15 @@ PREREQUISITES:
 ```
 	- ...\geoserver\src\community\security\pom.xml
       - Add this profile:
+
 ```
-  <profile>
-    <id>oauth2-aac</id>
-    <modules>
-      <module>oauth2</module>
-      <module>oauth2-aac</module>
-    </modules>
-  </profile>
+<profile>
+  <id>oauth2-aac</id>
+  <modules>
+    <module>oauth2</module>
+    <module>oauth2-aac</module>
+  </modules>
+</profile>
 ```
 
 3. Verify that `<version>...</version>` in ...\geoserver\src\community\security\sco.geoserver\aac.provider\oauth2-aac\pom.xml corresponds to the version of Geoserver you are using:
@@ -144,7 +150,7 @@ Operations available for the authenticated user:
   - view global styles (read-only) and styles in workspace owned (not other workspaces')
   - add, edit or remove styles in workspace owned
 
-NOTE: Due to a bug in Geoserver, non-admin users cannot properly create new stores within their workspaces.
+NOTE: Non-admin users cannot directly create new stores within their workspaces, they have to create the store, then go and save the workspace so that it is refreshed, then go back and publish the layers.
 
 ************************************************************************
 
