@@ -63,7 +63,6 @@ import org.springframework.web.client.HttpClientErrorException;
  *
  */
 public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFilter {
-	OAuth2RestOperations oauth2RestTemplate;
 	private static final String WS_OWNER = "OWNER_";
 	private static final String SCO_PROVIDER = "PROVIDER_";
 
@@ -72,8 +71,6 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
             GeoServerOAuth2SecurityConfiguration oauth2SecurityConfiguration,
             OAuth2RestOperations oauth2RestTemplate) {
         super(config, tokenServices, oauth2SecurityConfiguration, oauth2RestTemplate);
-        
-        this.oauth2RestTemplate = oauth2RestTemplate;
     }
     
 	@Override
@@ -169,7 +166,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     	Collection<GeoServerRole> gsRoles = new ArrayList<GeoServerRole>();
     	
     	List<AACRole> roles = null;
-    	OAuth2AccessToken token = oauth2RestTemplate.getOAuth2ClientContext().getAccessToken();
+    	OAuth2AccessToken token = restTemplate.getOAuth2ClientContext().getAccessToken();
     	String path = ((AACOAuth2FilterConfig) filterConfig).getUserRolesEndpoint();
     	
     	//get AAC roles
@@ -182,7 +179,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     		headers.set("Authorization", "Bearer "+token.getValue());
     		
     		ParameterizedTypeReference<List<AACRole>> listType = new ParameterizedTypeReference<List<AACRole>>() {};
-    		roles = oauth2RestTemplate.exchange(path, HttpMethod.GET, new HttpEntity<>(headers), listType).getBody();
+    		roles = restTemplate.exchange(path, HttpMethod.GET, new HttpEntity<>(headers), listType).getBody();
     	}
     	
     	if (roles != null) {
