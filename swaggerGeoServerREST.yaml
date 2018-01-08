@@ -12975,6 +12975,9 @@ definitions:
       name:
         type: string
         description: name of the workspace
+    example:
+      workspace:
+        name: string
   WorkspacesResponse:
     title: Workspaces
     type: object
