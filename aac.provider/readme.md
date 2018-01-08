@@ -1,10 +1,10 @@
-PREREQUISITES:
+## PREREQUISITES:
 - Geoserver (https://github.com/geoserver/geoserver/tree/2.12.1)
-`git clone https://github.com/geoserver/geoserver.git`
-`cd geoserver`
-`git checkout 2.12.1`
-- AAC
+	-`git clone https://github.com/geoserver/geoserver.git`
+	-`cd geoserver`
+	-`git checkout 2.12.1`
 
+- AAC
 
 1. Clone sco.geoserver and copy the folder aac.provider/oauth2-aac placing it under ...\geoserver\src\community\security
 
@@ -88,7 +88,7 @@ Import in Eclipse as "General -> Existing projects into workspace", with /geoser
 
 6. Run gs-web-app/src/test/java/org.geoserver.web/Start.java to start the web interface 
    
-(from command-line use the commands: `cd geoserver_2.0.x/src/web/app   mvn jetty:run -Dhttp.port=1000`  to start geoserver at port 1000)
+(from command-line use the commands: `cd geoserver/src/web/app   mvn jetty:run -Djetty.port=1000`  to start geoserver at port 1000)
 
 NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, e.g. adding the VM argument `-Djetty.port=<free_port>` in the run configurations in Eclipse
 
@@ -119,7 +119,7 @@ NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, 
 
 ************************************************************************
 
-LOGGING IN TO GEOSERVER AS OWNER OF A WORKSPACE IN sco.geoserver DOMAIN
+## LOGGING IN TO GEOSERVER AS OWNER OF A WORKSPACE IN sco.geoserver DOMAIN
 
 Prerequisites:
 - the user must be registered on AAC
@@ -152,11 +152,11 @@ Operations available for the authenticated user:
   - view global styles (read-only) and styles in workspace owned (not other workspaces')
   - add, edit or remove styles in workspace owned
 
-NOTE: Non-admin users cannot directly create new stores within their workspaces, they have to create the store, then go and save the workspace so that it is refreshed, then go back and publish the layers.
+    NOTE: Non-admin users cannot directly create new stores within their workspaces, they have to create the store, then go and save the workspace so that it is refreshed, then go back and publish the layers.
 
 ************************************************************************
 
-CONFIGURING `authkey` MODULE FOR OGC SERVICES (http://docs.geoserver.org/stable/en/user/community/authkey/index.html)
+## CONFIGURING `authkey` MODULE FOR OGC SERVICES (http://docs.geoserver.org/stable/en/user/community/authkey/index.html)
 
 1. Compile Geoserver with authkey extension enabled and build for Eclipse (leave also AAC enabled!):
 

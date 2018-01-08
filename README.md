@@ -42,5 +42,13 @@ In examples/openlayers/config.js there are other url being used for integration 
  - We may also filter each of the layer depending on validity of tracking.
  - This demonstrates how CQL filters work by using the WMS CQL_FILTER  parameter to alter the data displayed by WMS requests.
 
+## [OAUTH2 AAC plugin](https://github.com/smartcommunitylab/sco.geoserver/tree/master/aac.provider#)
+
+This module allows GeoServer to authenticate against the OAuth2 Protocol .
+In order to let the module work, it’s mandatory to setup and configure both oauth2 and oauth2-aac extension.
+[The module](https://github.com/smartcommunitylab/sco.geoserver/tree/master/aac.provider#) is a sample extension for AAC OAuth2 Provider. 
+
+
+
 
 
