@@ -81,6 +81,7 @@
 
 `mvn -DskipTests clean install -P wps,csw,oauth2-aac,authkey`
 
+*******TO BE TESTED*******
 5a. You can run Geoserver directly from command-line with Jetty:
 
 `cd geoserver/src/web/app`
@@ -90,6 +91,7 @@
 If you do not set a jetty port, the default will be 8080. NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, e.g. to 10000.
 
 The data directory (containing configurations and logs) will be by default `geoserver/src/web/app/src/main/webapp/data`. You can change it with the property `-DGEOSERVER_DATA_DIR=/your/desired/path`.
+**************************
 
 5b. Build for Eclipse with extension enabled:
 
