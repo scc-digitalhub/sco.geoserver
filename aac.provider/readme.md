@@ -1,8 +1,11 @@
 ## PREREQUISITES:
 - Geoserver (https://github.com/geoserver/geoserver/tree/2.12.1)
 	-`git clone https://github.com/geoserver/geoserver.git`
+
 	-`cd geoserver`
+
 	-`git checkout 2.12.1`
+
 
 - AAC
 
