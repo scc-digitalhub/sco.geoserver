@@ -86,21 +86,31 @@
 
 `mvn -DskipTests clean install -P wps,csw,oauth2-aac,authkey`
 
-5. Build for Eclipse with extension enabled:
+*******TO BE TESTED*******
+5a. You can run Geoserver directly from command-line with Jetty:
+
+`cd geoserver/src/web/app`
+
+`mvn jetty:run -Djetty.port=<free_port> -P wps,csw,oauth2-aac,authkey`
+
+If you do not set a jetty port, the default will be 8080. NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, e.g. to 10000.
+
+The data directory (containing configurations and logs) will be by default `geoserver/src/web/app/src/main/webapp/data`. You can change it with the property `-DGEOSERVER_DATA_DIR=/your/desired/path`.
+**************************
+
+5b. Build for Eclipse with extension enabled:
 
 `cd geoserver/src`
 
 `mvn eclipse:eclipse -P wps,csw,oauth2-aac,authkey`
 	
-Import in Eclipse as "General -> Existing projects into workspace", with /geoserver as root directory.
+Import in Eclipse as "General -> Existing projects into workspace", with /geoserver as root directory. Run `gs-web-app/src/test/java/org.geoserver.web/Start.java` to start the web interface.
 
-6. Run gs-web-app/src/test/java/org.geoserver.web/Start.java to start the web interface 
-   
-(from command-line use the commands: `cd geoserver/src/web/app   mvn jetty:run -Djetty.port=1000`  to start geoserver at port 1000)
+NOTE: you can change the port for Geoserver by adding the VM argument `-Djetty.port=<free_port>` in the run configurations in Eclipse.
 
-NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, e.g. adding the VM argument `-Djetty.port=<free_port>` in the run configurations in Eclipse
+Here the default data directory will be `geoserver/data/minimal`. You can change it with the VM argument `-DGEOSERVER_DATA_DIR=/your/desired/path`.
 
-7. Create a provider (tenant) on AAC:
+6. Create a provider (tenant) on AAC:
 	- Log in to AAC as admin (http://localhost:8080/aac/login), go to "Admin" tab and create a new provider (use the email of an already registered user or register a new one beforehand); the default domain name is "sco.geoserver"
 	- Log in to WSO2 store (https://localhost:9443/store/) as the provider, enter the new domain and create a new application (e.g. "Geoserver")
 	- Generate production keys for the new application and add the following callback URLs (with the port you are using for Geoserver):
@@ -115,7 +125,7 @@ NOTE: if AAC is running on port 8080 you need to change the port for Geoserver, 
     
 	NOTE: In order to create simple non-provider users, just sign up to AAC with a different email and password, then you can use those credentials to log in to Geoserver.
 
-8. Configure authentication filter on Geoserver:
+7. Configure authentication filter on Geoserver:
 	- Log in to Geoserver web interface as "admin" with password "geoserver"
 	- Navigate to Security -> Authentication
 	- Under "Authentication Filters" section click "Add new"
