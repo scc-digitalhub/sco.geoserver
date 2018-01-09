@@ -43,6 +43,11 @@
       <artifactId>gs-sec-oauth2-aac</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+	<groupId>org.springframework.security.oauth</groupId>
+	<artifactId>spring-security-oauth2</artifactId>
+	<version>2.0.11.RELEASE</version>
+  </dependency>
   </dependencies>
 </profile>
 ```
