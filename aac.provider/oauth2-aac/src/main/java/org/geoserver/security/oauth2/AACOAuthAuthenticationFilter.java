@@ -347,10 +347,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 				namespace.setPrefix(workspaceName);
 				
 				try {
-					Properties prop = new Properties();
-					String path = Thread.currentThread().getContextClassLoader().getResource("namespace.properties").getPath();
-					prop.load(new FileInputStream(path));
-					String uri = prop.getProperty("URI");
+					String uri = ((AACOAuth2FilterConfig) filterConfig).getWorkspaceURI();
 					namespace.setURI(uri + workspaceName);
 				} catch (IOException e) {
 					e.printStackTrace();

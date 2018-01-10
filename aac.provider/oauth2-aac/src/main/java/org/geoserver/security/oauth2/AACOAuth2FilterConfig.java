@@ -57,6 +57,8 @@ public class AACOAuth2FilterConfig extends PreAuthenticatedUserNameFilterConfig
     protected String apiManagerDomain = "sco.geoserver";
     
     protected String rolePrefix = "geo_";
+
+    protected String workspaceURI = "http://www.openplans.org/";
     // DEFAULT VALUES - END -
 
     @Override
@@ -199,6 +201,14 @@ public class AACOAuth2FilterConfig extends PreAuthenticatedUserNameFilterConfig
 	public void setRolePrefix(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
 	}
+
+        public String getWorkspaceURI() {
+        return workspaceURI;
+    }
+
+    public void setWorkspaceURI(String workspaceURI) {
+        this.workspaceURI = workspaceURI;
+    }
 
 	/**
      * @return the enableRedirectAuthenticationEntryPoint

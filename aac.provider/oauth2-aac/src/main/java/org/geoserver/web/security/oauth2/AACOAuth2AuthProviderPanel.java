@@ -51,6 +51,7 @@ public class AACOAuth2AuthProviderPanel
         add(new HelpLink("userRolesEndpointHelp", this).setDialog(dialog));
         add(new HelpLink("apiManagerDomainHelp", this).setDialog(dialog));
         add(new HelpLink("rolePrefixHelp", this).setDialog(dialog));
+        add(new HelpLink("workspaceURIHelp", this).setDialog(dialog));
 
         add(new CheckBox("enableRedirectAuthenticationEntryPoint"));
         add(new TextField<String>("loginEndpoint"));
@@ -68,5 +69,6 @@ public class AACOAuth2AuthProviderPanel
         add(new TextField<String>("userRolesEndpoint"));
         add(new TextField<String>("apiManagerDomain"));
         add(new TextField<String>("rolePrefix"));
+        add(new TextField<String>("workspaceURI"));
     }
 }

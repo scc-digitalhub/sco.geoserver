@@ -48,6 +48,11 @@
 	<artifactId>spring-security-oauth2</artifactId>
 	<version>2.0.11.RELEASE</version>
   </dependency>
+  <dependency>
+	<groupId>com.fasterxml.jackson.core</groupId>
+	<artifactId>jackson-databind</artifactId>
+	<version>2.5.0</version>
+  </dependency>
   </dependencies>
 </profile>
 ```
@@ -145,7 +150,7 @@ Prerequisites:
 
 
 Procedure on Geoserver (retrieval/creation of workspace and its associated policy):
-- Copy the file `namespace.properties` under `/geoserver/src/main/src/main/resources/`, or create a new one and write there the URI you want to use for your namespace (e.g. `URI=http://www.openplans.org/`)
+
 - When the user logs in to Geoserver via AAC and has role `<prefix><workspace_name>`, the authentication filter:
   - checks if the workspace and the associated namespace exist in the catalog, otherwise they are created
   - checks that the role `OWNER_<workspace_name>` exists within the active role service, otherwise it is created
