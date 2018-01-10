@@ -91,7 +91,7 @@
 
 `mvn -DskipTests clean install -P wps,csw,oauth2-aac,authkey`
 
-*******TO BE TESTED*******
+
 5a. You can run Geoserver directly from command-line with Jetty:
 
 `cd geoserver/src/web/app`
