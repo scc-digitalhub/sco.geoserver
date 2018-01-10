@@ -329,40 +329,37 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
      * @return WorkspaceInfo if workspace exists or has been created
      */
     private WorkspaceInfo getWorkspace(String workspaceName) {
-    	WorkspaceInfo workspace = null;
-		
-		//use catalog bean to get or create workspace
-		try {
-			Catalog catalog = (Catalog) getSecurityManager().getApplicationContext().getBean("rawCatalog");
-			workspace = catalog.getWorkspaceByName(workspaceName);
-			NamespaceInfo namespace = catalog.getNamespaceByPrefix(workspaceName);
-			
-			if (workspace == null) {
-				if (namespace != null) {
-					catalog.detach(namespace);
-				}
-				workspace = catalog.getFactory().createWorkspace();
-				workspace.setName(workspaceName);
-				namespace = catalog.getFactory().createNamespace();
-				namespace.setPrefix(workspaceName);
-				
-				try {
-					String uri = ((AACOAuth2FilterConfig) filterConfig).getWorkspaceURI();
-					namespace.setURI(uri + workspaceName);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				if (namespace.getURI() != null) {
-					catalog.add(workspace);
-					catalog.add(namespace);
-				}
-				
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return workspace;
+        WorkspaceInfo workspace = null;
+
+        // use catalog bean to get or create workspace
+        try {
+            Catalog catalog =
+                    (Catalog) getSecurityManager().getApplicationContext().getBean("rawCatalog");
+            workspace = catalog.getWorkspaceByName(workspaceName);
+            NamespaceInfo namespace = catalog.getNamespaceByPrefix(workspaceName);
+
+            if (workspace == null) {
+                if (namespace != null) {
+                    catalog.detach(namespace);
+                }
+                workspace = catalog.getFactory().createWorkspace();
+                workspace.setName(workspaceName);
+                namespace = catalog.getFactory().createNamespace();
+                namespace.setPrefix(workspaceName);
+
+                String uri = ((AACOAuth2FilterConfig) filterConfig).getWorkspaceURI();
+                namespace.setURI(uri + workspaceName);
+
+                if (namespace.getURI() != null) {
+                    catalog.add(workspace);
+                    catalog.add(namespace);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return workspace;
     }
 
 	/**
