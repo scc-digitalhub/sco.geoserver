@@ -52,12 +52,10 @@ public class AACOAuth2FilterConfig extends PreAuthenticatedUserNameFilterConfig
     
     protected String logoutEndpoint = "/j_spring_oauth2_aac_logout";
     
-    protected String userRolesEndpoint = "http://localhost:8280/aacroles/1.0.0/userroles/me";
+    protected String userRolesEndpoint = "http://localhost:8080/aac/userroles/me";
     
-    protected String apiManagerDomain = "sco.geoserver";
+    protected String apiManagerDomain = "components/sco.geoserver";
     
-    protected String rolePrefix = "geo_";
-
     protected String workspaceURI = "http://www.openplans.org/";
     // DEFAULT VALUES - END -
 
@@ -194,15 +192,7 @@ public class AACOAuth2FilterConfig extends PreAuthenticatedUserNameFilterConfig
 		this.apiManagerDomain = apiManagerDomain;
 	}
 
-	public String getRolePrefix() {
-		return rolePrefix;
-	}
-
-	public void setRolePrefix(String rolePrefix) {
-		this.rolePrefix = rolePrefix;
-	}
-
-        public String getWorkspaceURI() {
+    public String getWorkspaceURI() {
         return workspaceURI;
     }
 
