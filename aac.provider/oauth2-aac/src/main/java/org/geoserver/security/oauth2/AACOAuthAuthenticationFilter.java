@@ -226,11 +226,7 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
     	try {
 			DataAccessRuleDAO dao = getSecurityManager().getApplicationContext().getBean(DataAccessRuleDAO.class);
 			SortedSet<DataAccessRule> rules = dao.getRulesAssociatedWithRole(role.getAuthority());
-			// by default geoserver allows any user to read the workspace's layers
-			// by adding this line we disallow them to see if they are not provider neither owner
 			DataAccessRule ruleOne = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.READ, role.getAuthority());
-			//GeoServerRole.ADMIN_ROLE.getAuthority()
-			//ruleOne.getRoles().add(role.getAuthority());
 			dao.addRule(ruleOne);
 			if(isProvider) {
 				DataAccessRule ruleAdmin = new DataAccessRule(workspaceName, DataAccessRule.ANY, AccessMode.ADMIN, role.getAuthority());
@@ -268,7 +264,6 @@ public class AACOAuthAuthenticationFilter extends GeoServerOAuthAuthenticationFi
 				store.associateRoleToUser(owner, principal);
 				store.store();
     		}
-    		//TODO if role exists but is associated to a different username?
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
